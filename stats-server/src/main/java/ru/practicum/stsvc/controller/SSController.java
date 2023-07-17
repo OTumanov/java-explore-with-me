@@ -37,7 +37,7 @@ public class SSController {
 
     @GetMapping("/stats")
     public List<HitResponseDto> getStatistics(@RequestParam @NotBlank String start, @RequestParam @NotBlank String end,
-                                              @RequestParam List<String> uris, @RequestParam Boolean unique) {
+                                              @RequestParam List<String> uris, @RequestParam (defaultValue = "true") Boolean unique) {
         log.info("Запрос статистики -- start:{}, end:{}, uris:{}, unique:{}", start, end, uris, unique);
         HitSearchParams params = new HitSearchParams(start, end, uris, unique);
         return ssService.getHits(params);

@@ -30,13 +30,15 @@ public class SSServiceImpl implements SSService {
 
     @Override
     @Transactional
-    public void postHit(HitPostDto dto) {
+    public Hit postHit(HitPostDto dto) {
         App app = appRepo.findByName(dto.getApp()).orElse(null);
         if (app == null) {
             app = appRepo.save(new App(dto.getApp()));
         }
         Hit hit = HitMapper.toModel(dto, app);
         hitRepo.save(hit);
+
+        return hit;
     }
 
     @Override

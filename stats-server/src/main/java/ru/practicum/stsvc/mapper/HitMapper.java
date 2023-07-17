@@ -29,7 +29,7 @@ public final class HitMapper {
 
     public static HitResponseDto toDto(Hit hit, Long countHits) {
         return HitResponseDto.builder()
-                .app(hit.getApp().getName())
+                .app(hit.getApp())
                 .uri(hit.getUri())
                 .hits(countHits)
                 .build();

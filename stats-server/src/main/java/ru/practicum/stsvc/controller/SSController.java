@@ -11,7 +11,6 @@ import ru.practicum.stsvc.dto.HitPostDto;
 import ru.practicum.stsvc.dto.HitResponseDto;
 import ru.practicum.stsvc.mapper.DateTimeMapper;
 import ru.practicum.stsvc.model.Hit;
-import ru.practicum.stsvc.model.HitSearchParams;
 import ru.practicum.stsvc.service.SSService;
 
 import javax.validation.Valid;
@@ -40,16 +39,14 @@ public class SSController {
     }
 
     @GetMapping("/stats")
-    public List<HitResponseDto> getStatistics(@RequestParam @NotBlank String start, @RequestParam @NotBlank String end,
-                                              @RequestParam List<String> uris, @RequestParam(defaultValue = "false") Boolean unique) {
+    public List<HitResponseDto> getStatistics(@RequestParam @NotBlank String start,
+                                              @RequestParam @NotBlank String end,
+                                              @RequestParam(required = false) List<String> uris,
+                                              @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Запрос статистики -- start:{}, end:{}, uris:{}, unique:{}", start, end, uris, unique);
-        HitSearchParams params = HitSearchParams.builder()
-                .start(DateTimeMapper.toDateTime(start))
-                .end(DateTimeMapper.toDateTime(end))
-                .uris(uris)
-                .unique(unique)
-                .build();
-        return ssService.getHits(params);
+
+
+        return ssService.getHits(DateTimeMapper.toDateTime(start), DateTimeMapper.toDateTime(end), uris, unique);
     }
 
     @PostMapping("/hit")

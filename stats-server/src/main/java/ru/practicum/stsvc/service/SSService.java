@@ -5,14 +5,14 @@ import ru.practicum.stsvc.dto.BoxDto;
 import ru.practicum.stsvc.dto.HitPostDto;
 import ru.practicum.stsvc.dto.HitResponseDto;
 import ru.practicum.stsvc.model.Hit;
-import ru.practicum.stsvc.model.HitSearchParams;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SSService {
     Hit postHit(HitPostDto dto);
 
-    List<HitResponseDto> getHits(HitSearchParams params);
+    List<HitResponseDto> getHits(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 
     Long getViewsByEventId(Long eventId);
 

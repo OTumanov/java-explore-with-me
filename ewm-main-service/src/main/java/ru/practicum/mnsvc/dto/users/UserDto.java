@@ -1,18 +1,15 @@
 package ru.practicum.mnsvc.dto.users;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 
 @Getter
 @Setter
+@ToString
 @Builder
 @AllArgsConstructor
 public class UserDto {
-    @Email
     private String email;
     private Long id;
     private String name;

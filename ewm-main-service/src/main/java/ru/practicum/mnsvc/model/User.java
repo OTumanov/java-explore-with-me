@@ -7,21 +7,21 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 public class User {
-    public static final int MAX_EMAIL_LENGTH = 512;
-    public static final String NAME_COLUMN_NAME = "username";
-    public static final String ID_COLUMN_NAME = "user_id";
-    public static final String EMAIL_COLUMN_NAME = "email";
 
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = EMAIL_COLUMN_NAME, nullable = false, length = MAX_EMAIL_LENGTH)
+
+    @Column(name = "email", nullable = false, length = 512)
     private String email;
-    @Column(name = NAME_COLUMN_NAME, nullable = false)
+
+    @Column(name = "username", nullable = false)
     private String name;
 }

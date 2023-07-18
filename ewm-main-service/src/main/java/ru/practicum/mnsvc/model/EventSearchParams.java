@@ -2,8 +2,8 @@ package ru.practicum.mnsvc.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.ewm_ms.util.Util;
 import ru.practicum.mnsvc.mapper.DateTimeMapper;
+import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
 import java.util.List;

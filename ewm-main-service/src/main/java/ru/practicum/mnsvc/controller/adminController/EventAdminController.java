@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.model.EventSearchParams;
+import ru.practicum.mnsvc.service.EventService;
+
 
 import java.util.List;
 

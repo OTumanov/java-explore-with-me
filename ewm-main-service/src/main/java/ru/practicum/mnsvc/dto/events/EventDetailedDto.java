@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-import ru.practicum.ewm_ms.model.Location;
 import ru.practicum.mnsvc.dto.category.CategoryDto;
 import ru.practicum.mnsvc.dto.users.UserShortDto;
+import ru.practicum.mnsvc.model.Location;
 
 @Getter
 @Setter

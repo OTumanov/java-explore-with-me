@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import ru.practicum.ewm_ms.model.Location;
+import ru.practicum.mnsvc.model.Location;
+
 
 @Getter
 @Setter

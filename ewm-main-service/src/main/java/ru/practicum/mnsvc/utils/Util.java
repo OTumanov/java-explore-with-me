@@ -1,8 +1,9 @@
-package ru.practicum.ewm_ms.util;
+package ru.practicum.mnsvc.utils;
 
 
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.*;
+import ru.practicum.mnsvc.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;

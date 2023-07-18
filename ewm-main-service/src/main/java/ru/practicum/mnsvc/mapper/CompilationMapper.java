@@ -1,13 +1,13 @@
 package ru.practicum.mnsvc.mapper;
 
-import ru.practicum.ewm_ms.repository.EventRepository;
-import ru.practicum.ewm_ms.util.Util;
 import ru.practicum.mnsvc.dto.compile.CompilationPostDto;
 import ru.practicum.mnsvc.dto.compile.CompilationResponseDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.Compilation;
 import ru.practicum.mnsvc.model.Event;
+import ru.practicum.mnsvc.repository.EventRepository;
+import ru.practicum.mnsvc.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,12 @@
 package ru.practicum.mnsvc.controller.adminController;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.users.NewUserDto;
 import ru.practicum.mnsvc.dto.users.UserDto;
-
+import ru.practicum.mnsvc.service.UserService;
 
 import javax.validation.constraints.Positive;
 import java.util.List;

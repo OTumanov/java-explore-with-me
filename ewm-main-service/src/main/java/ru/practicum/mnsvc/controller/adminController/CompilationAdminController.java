@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.compile.CompilationPostDto;
 import ru.practicum.mnsvc.dto.compile.CompilationResponseDto;
+import ru.practicum.mnsvc.service.CompilationService;
 
 
 @Slf4j

@@ -6,11 +6,16 @@ import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.mapper.DateTimeMapper;
 import ru.practicum.mnsvc.model.*;
+import ru.practicum.mnsvc.repository.CategoryRepository;
+import ru.practicum.mnsvc.repository.EventRepository;
+import ru.practicum.mnsvc.repository.ParticipationRepository;
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.practicum.mnsvc.utils.Util.checkIfCategoryExists;
 
 public class EventServiceUtil {
 
@@ -71,7 +76,7 @@ public class EventServiceUtil {
             event.setAnnotation(update.getAnnotation());
         }
         if (update.getCategory() != null) {
-            Category category = ru.practicum.ewm_ms.util.Util.checkIfCategoryExists(update.getCategory(), categoryRepo);
+            Category category = checkIfCategoryExists(update.getCategory(), categoryRepo);
             event.setCategory(category);
         }
         if (update.getDescription() != null) {

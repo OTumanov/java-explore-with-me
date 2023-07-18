@@ -1,6 +1,5 @@
 package ru.practicum.mnsvc.mapper;
 
-import ru.practicum.ewm_ms.util.Util;
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
@@ -10,6 +9,9 @@ import ru.practicum.mnsvc.model.Category;
 import ru.practicum.mnsvc.model.Event;
 import ru.practicum.mnsvc.model.PublicationState;
 import ru.practicum.mnsvc.model.User;
+import ru.practicum.mnsvc.repository.CategoryRepository;
+import ru.practicum.mnsvc.repository.UserRepository;
+import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
 

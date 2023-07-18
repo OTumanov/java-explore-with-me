@@ -3,9 +3,10 @@ package ru.practicum.mnsvc.controller.adminController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
 import ru.practicum.mnsvc.dto.category.CategoryDto;
 import ru.practicum.mnsvc.dto.category.CategoryPostDto;
+import ru.practicum.mnsvc.service.CategoryService;
+
 
 @Slf4j
 @RestController

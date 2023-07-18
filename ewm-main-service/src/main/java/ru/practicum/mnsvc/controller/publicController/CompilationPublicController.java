@@ -16,23 +16,18 @@ import java.util.List;
 @RequestMapping(path = "/compilations")
 public class CompilationPublicController {
 
-    public static final String DEFAULT_FROM = "0";
-    public static final String DEFAULT_SIZE = "10";
-
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<CompilationResponseDto> findAll(@NotNull
-                                                @RequestParam Boolean pinned,
-                                                @RequestParam(defaultValue = DEFAULT_FROM) Integer from,
-                                                @RequestParam(defaultValue = DEFAULT_SIZE) Integer size) {
+    public List<CompilationResponseDto> findAll(@NotNull @RequestParam Boolean pinned,
+                                                @RequestParam(defaultValue = "0") Integer from,
+                                                @RequestParam(defaultValue = "10") Integer size) {
         log.info("find all compilations from:{}, size:{}", from, size);
-        return compilationService.findAll(pinned, from, size) ;
+        return compilationService.findAll(pinned, from, size);
     }
 
     @GetMapping("/{compId}")
-    public CompilationResponseDto findById(@Positive
-                                           @PathVariable Long compId) {
+    public CompilationResponseDto findById(@Positive @PathVariable Long compId) {
         log.info("find compilation by id:{}", compId);
         return compilationService.findById(compId);
     }

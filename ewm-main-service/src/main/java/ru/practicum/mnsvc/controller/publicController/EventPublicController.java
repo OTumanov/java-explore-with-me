@@ -8,7 +8,6 @@ import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.model.EventSearchParams;
 import ru.practicum.mnsvc.service.EventService;
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -46,12 +45,11 @@ public class EventPublicController {
                 from,
                 size
         );
-        return eventService.getEvents(criteria, clientIp, endpoint) ;
+        return eventService.getEvents(criteria, clientIp, endpoint);
     }
 
     @GetMapping("/{id}")
-    public EventDetailedDto findEventById(@PathVariable Long id,
-                                          HttpServletRequest request)  {
+    public EventDetailedDto findEventById(@PathVariable Long id, HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         log.info("client ip: {}", clientIp);

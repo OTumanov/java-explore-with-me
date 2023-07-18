@@ -1,7 +1,6 @@
 package ru.practicum.mnsvc.utils;
 
 import org.springframework.data.jpa.domain.Specification;
-
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.mapper.DateTimeMapper;
@@ -26,7 +25,7 @@ public class EventServiceUtil {
     public static final long HOURS_LEFT_AFTER_PUBLICATION = 1;
 
     public static Specification<Event> getSpecification(EventSearchParams params, boolean publicRequest) {
-        return  (root, query, criteriaBuilder) -> {
+        return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (params.getUserIds() != null) {
@@ -42,10 +41,10 @@ public class EventServiceUtil {
                 }
             }
             if (null != params.getText()) {
-                predicates.add(criteriaBuilder.like(root.get("annotation"), "%"+params.getText()+"%"));
-                predicates.add(criteriaBuilder.like(root.get("description"), "%"+params.getText()+"%"));
+                predicates.add(criteriaBuilder.like(root.get("annotation"), "%" + params.getText() + "%"));
+                predicates.add(criteriaBuilder.like(root.get("description"), "%" + params.getText() + "%"));
             }
-            if (null != params.getCategories() && !params.getCategories().isEmpty()){
+            if (null != params.getCategories() && !params.getCategories().isEmpty()) {
                 for (Long catId : params.getCategories()) {
                     predicates.add(criteriaBuilder.equal(root.get("category_id"), catId));
                 }

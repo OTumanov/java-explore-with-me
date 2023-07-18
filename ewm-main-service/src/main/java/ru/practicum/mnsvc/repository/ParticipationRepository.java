@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.mnsvc.model.Participation;
 import ru.practicum.mnsvc.model.ParticipationState;
 
-
 import java.util.List;
 import java.util.Optional;
 

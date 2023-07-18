@@ -14,7 +14,8 @@ import java.util.List;
 
 public class CompilationMapper {
 
-    private CompilationMapper() {}
+    private CompilationMapper() {
+    }
 
     public static Compilation toModel(CompilationPostDto dto, EventRepository repo) {
         return Compilation.builder()

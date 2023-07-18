@@ -5,7 +5,8 @@ import java.time.format.DateTimeFormatter;
 
 public class DateTimeMapper {
 
-    private DateTimeMapper() {}
+    private DateTimeMapper() {
+    }
 
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static DateTimeFormatter formatter;

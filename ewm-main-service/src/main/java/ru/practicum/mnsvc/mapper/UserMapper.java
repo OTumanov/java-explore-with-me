@@ -1,7 +1,6 @@
 package ru.practicum.mnsvc.mapper;
 
 
-
 import ru.practicum.mnsvc.dto.users.NewUserDto;
 import ru.practicum.mnsvc.dto.users.UserDto;
 import ru.practicum.mnsvc.dto.users.UserShortDto;
@@ -12,7 +11,8 @@ import java.util.List;
 
 public class UserMapper {
 
-    private UserMapper() {}
+    private UserMapper() {
+    }
 
     public static User toModel(NewUserDto dto) {
         return User.builder()

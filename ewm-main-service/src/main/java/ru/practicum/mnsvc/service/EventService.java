@@ -1,7 +1,6 @@
 package ru.practicum.mnsvc.service;
 
 
-
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
@@ -12,7 +11,7 @@ import ru.practicum.mnsvc.model.EventSearchParams;
 import java.util.List;
 
 public interface EventService {
-    List<EventShortDto> getEvents(EventSearchParams criteria, String clientIp, String endpoint) ;
+    List<EventShortDto> getEvents(EventSearchParams criteria, String clientIp, String endpoint);
 
     EventDetailedDto findEventById(Long id, String clientIp, String endpoint);
 

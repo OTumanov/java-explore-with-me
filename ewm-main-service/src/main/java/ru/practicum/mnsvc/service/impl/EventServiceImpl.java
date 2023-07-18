@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm_ms.client.EventClient;
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
@@ -30,16 +31,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.practicum.mnsvc.utils.EventServiceUtil.*;
-import ru.practicum.ewm_ms.client.EventClient;
-
-
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
 
-    private final EventClient client;
+    private EventClient client;
     private final ParticipationRepository participationRepo;
     private final CategoryRepository categoryRepo;
     private final EventRepository eventRepo;

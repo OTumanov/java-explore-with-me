@@ -9,8 +9,8 @@ services:
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm_stats
-      - DB_NAME=ewm_stats
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats-server
+      - DB_NAME=stats-server
       - SPRING_DATASOURCE_USERNAME=owner
       - SPRING_DATASOURCE_PASSWORD=password
       - DB_HOST=stats-db
@@ -18,10 +18,10 @@ services:
 
   stats-db:
     image: postgres:14-alpine
-    container_name: ewm_stats_db_container
+    container_name: stats-server_db_container
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_DB=ewm_stats
+      - POSTGRES_DB=stats-server
       - POSTGRES_USER=owner
       - POSTGRES_PASSWORD=password

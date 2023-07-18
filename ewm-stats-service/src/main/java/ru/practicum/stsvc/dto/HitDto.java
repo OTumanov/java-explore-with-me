@@ -1,4 +1,4 @@
-package dto;
+package ru.practicum.stsvc.dto;
 
 import lombok.*;
 

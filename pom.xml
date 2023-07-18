@@ -5,8 +5,7 @@
 	<modules>
 		<module>client</module>
 		<module>ewm-main-service</module>
-		<module>stats/ewm-stats-service</module>
-		<module>stats/dto</module>
+		<module>ewm-stats-service</module>
 	</modules>
 	<dependencies>
 		<dependency>

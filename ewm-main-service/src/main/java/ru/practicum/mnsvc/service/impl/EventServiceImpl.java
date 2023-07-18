@@ -44,6 +44,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepo;
     private final EventRepository eventRepo;
     private final UserRepository userRepo;
+
     @Override
     @Transactional
     public List<EventShortDto> getEvents(EventSearchParams params, String clientIp, String endpoint) {

@@ -3,10 +3,10 @@ package ru.practicum.stsvc.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.stsvc.dto.BoxDto;
-import ru.practicum.stsvc.dto.HitPostDto;
-import ru.practicum.stsvc.dto.HitResponseDto;
-import ru.practicum.stsvc.dto.UtilDto;
+import ru.practicum.dto.BoxDto;
+import ru.practicum.dto.HitPostDto;
+import ru.practicum.dto.HitResponseDto;
+import ru.practicum.dto.UtilDto;
 import ru.practicum.stsvc.mapper.HitMapper;
 import ru.practicum.stsvc.model.App;
 import ru.practicum.stsvc.model.Hit;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SSServiceImpl implements SSService {
+public class StatsServiceImpl implements StatsService {
 
     private final HitRepository hitRepo;
     private final AppRepository appRepo;

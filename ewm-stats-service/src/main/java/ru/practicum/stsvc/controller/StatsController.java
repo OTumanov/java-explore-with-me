@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.stsvc.dto.BoxDto;
-import ru.practicum.stsvc.dto.HitPostDto;
-import ru.practicum.stsvc.dto.HitResponseDto;
+import ru.practicum.dto.BoxDto;
+import ru.practicum.dto.HitPostDto;
+import ru.practicum.dto.HitResponseDto;
 import ru.practicum.stsvc.mapper.DateTimeMapper;
 import ru.practicum.stsvc.model.Hit;
-import ru.practicum.stsvc.service.SSService;
+import ru.practicum.stsvc.service.StatsService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -22,9 +22,9 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-public class SSController {
+public class StatsController {
 
-    private final SSService ssService;
+    private final StatsService ssService;
 
     @GetMapping("/views/{eventId}")
     public Long getViewsByEventId(@Positive @PathVariable Long eventId) {

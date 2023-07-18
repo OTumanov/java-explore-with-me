@@ -1,8 +1,8 @@
 package ru.practicum.stsvc.mapper;
 
 import lombok.NoArgsConstructor;
-import ru.practicum.stsvc.dto.HitPostDto;
-import ru.practicum.stsvc.dto.HitResponseDto;
+import ru.practicum.dto.HitPostDto;
+import ru.practicum.dto.HitResponseDto;
 import ru.practicum.stsvc.model.App;
 import ru.practicum.stsvc.model.Hit;
 

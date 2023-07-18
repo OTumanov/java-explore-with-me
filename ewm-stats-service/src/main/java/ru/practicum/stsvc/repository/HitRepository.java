@@ -4,8 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.stsvc.dto.HitResponseDto;
-import ru.practicum.stsvc.dto.UtilDto;
+import ru.practicum.dto.HitResponseDto;
+import ru.practicum.dto.UtilDto;
 import ru.practicum.stsvc.model.Hit;
 
 import java.time.LocalDateTime;
@@ -16,10 +16,10 @@ public interface HitRepository extends JpaRepository<Hit, Long>, JpaSpecificatio
     @Query("select  count (hitId) from Hit where eventId = ?1")
     long getCountHitsByEventId(Long id);
 
-    @Query("select  new ru.practicum.stsvc.dto.UtilDto(h.eventId, count (h)) from Hit as h where h.eventId in ?1 group by h.eventId")
+    @Query("select  new ru.practicum.dto.UtilDto(h.eventId, count (h)) from Hit as h where h.eventId in ?1 group by h.eventId")
     List<UtilDto> getCountHitsByEventIds(List<Long> eventIds);
 
-    @Query("SELECT new ru.practicum.stsvc.dto.HitResponseDto(h.app, h.uri, COUNT(h.ip)) " +
+    @Query("SELECT new ru.practicum.dto.HitResponseDto(h.app, h.uri, COUNT(h.ip)) " +
             "FROM Hit AS h " +
             "WHERE (h.timeStamp >= :start) " +
             "AND (h.timeStamp <= :end) " +
@@ -30,7 +30,7 @@ public interface HitRepository extends JpaRepository<Hit, Long>, JpaSpecificatio
             @Param("uris") List<String> uris, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end
     );
 
-    @Query("SELECT new ru.practicum.stsvc.dto.HitResponseDto(h.app, h.uri, COUNT(DISTINCT h.ip)) " +
+    @Query("SELECT new ru.practicum.dto.HitResponseDto(h.app, h.uri, COUNT(DISTINCT h.ip)) " +
             "FROM Hit AS h " +
             "WHERE (h.timeStamp >= :start) " +
             "AND (h.timeStamp <= :end) " +

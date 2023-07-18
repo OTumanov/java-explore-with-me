@@ -1,9 +1,6 @@
-package ru.practicum.stsvc.dto;
+package ru.practicum.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.stsvc.model.App;
 
 @Getter

@@ -10,26 +10,24 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "participations")
+@Entity
+@Table(name = "participations")
 public class Participation {
 
-    public static final String EVENT_ID_COLUMN_NAME = "event_id";
-    public static final String STATE_COLUMN_NAME = "state";
-    public static final String CREATED_COLUMN_NAME = "created";
-    public static final String REQUESTER_ID_COLUMN_NAME = "requester_id";
-    public static final String ID_COLUMN_NAME = "participation_id";
-
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "participation_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = CREATED_COLUMN_NAME, nullable = false)
+
+    @Column(name = "created", nullable = false)
     private LocalDateTime created;
+
     @ManyToOne
-    @JoinColumn(name = EVENT_ID_COLUMN_NAME)
+    @JoinColumn(name = "event_id")
     private Event event;
+
     @ManyToOne
-    @JoinColumn(name = REQUESTER_ID_COLUMN_NAME)
+    @JoinColumn(name = "requester_id")
     private User requester;
     private ParticipationState state;
 }

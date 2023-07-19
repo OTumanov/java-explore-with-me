@@ -1,6 +1,5 @@
 package ru.practicum.mnsvc.service;
 
-
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
@@ -35,7 +34,7 @@ public interface EventService {
 
     EventDetailedDto editEvent(Long eventId, EventPostDto dto);
 
-    EventDetailedDto publishEvent(Long eventId, EventPostDto state);
+    EventDetailedDto publishEvent(Long eventId);
 
-//    EventDetailedDto rejectEvent(Long eventId);
+    EventDetailedDto rejectEvent(Long eventId);
 }

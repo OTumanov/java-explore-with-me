@@ -17,16 +17,15 @@ public class EventMapper {
     private EventMapper() {
     }
 
-    public static Event toModel(EventPostDto dto, Long initiator, CategoryRepository catRepo, UserRepository userRepo) {
+    public static Event toModel(EventPostDto dto, User initiator, Category category) {
         Event event = Event.builder()
                 .annotation(dto.getAnnotation())
-                .category(matchCategory(dto.getCategory(), catRepo))
-                .confirmedRequests(0)
+                .category(category)
                 .createdOn(LocalDateTime.now())
                 .description(dto.getDescription())
                 .eventDate(DateTimeMapper.toDateTime(dto.getEventDate()))
                 .id(null)
-                .initiator(matchUser(initiator, userRepo))
+                .initiator(initiator)
                 .location(dto.getLocation())
                 .paid(dto.getPaid())
                 .participantLimit(dto.getParticipantLimit())
@@ -34,46 +33,36 @@ public class EventMapper {
                 .requestModeration(dto.getRequestModeration())
                 .state(PublicationState.PENDING)
                 .title(dto.getTitle())
-                .views(0L)
                 .build();
-
-        if (event.getRequestModeration() == null) {
-            event.setRequestModeration(true);
-        }
+        event.setRequestModeration(event.getRequestModeration() == null || event.getRequestModeration());
         return event;
-    }
-
-    public static Event toModel(EventPatchDto dto, CategoryRepository catRepo) {
-        return Event.builder()
-                .annotation(dto.getAnnotation())
-                .category(matchCategory(dto.getCategory(), catRepo))
-                .confirmedRequests(null)
-                .createdOn(null)
-                .description(dto.getDescription())
-                .eventDate(DateTimeMapper.toDateTime(dto.getEventDate()))
-                .id(dto.getId())
-                .initiator(null)
-                .location(null)
-                .paid(dto.getPaid())
-                .participantLimit(dto.getParticipantLimit())
-                .publishedOn(null)
-                .requestModeration(null)
-                .state(null)
-                .title(dto.getTitle())
-                .build();
     }
 
     public static EventShortDto toEventShortDto(Event event) {
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
+//                .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(DateTimeMapper.toString(event.getEventDate()))
                 .id(event.getId())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
+//                .views(event.getViews())
+                .build();
+    }
+
+    public static EventShortDto toEventShortDto(Event event, Integer confirmedRequests, Long views) {
+        return EventShortDto.builder()
+                .annotation(event.getAnnotation())
+                .category(CategoryMapper.toDto(event.getCategory()))
+                .confirmedRequests(confirmedRequests)
+                .eventDate(DateTimeMapper.toString(event.getEventDate()))
+                .id(event.getId())
+                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+                .paid(event.getPaid())
+                .title(event.getTitle())
+                .views(views)
                 .build();
     }
 
@@ -88,7 +77,7 @@ public class EventMapper {
         return EventDetailedDto.builder()
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
+//                .confirmedRequests(event.getConfirmedRequests())
                 .createdOn(DateTimeMapper.toString(event.getCreatedOn()))
                 .description(event.getDescription())
                 .eventDate(DateTimeMapper.toString(event.getEventDate()))
@@ -101,8 +90,40 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(state)
                 .title(event.getTitle())
-                .views(event.getViews())
+//                .views(event.getViews())
                 .build();
+    }
+
+    public static EventDetailedDto toEventDetailedDto(Event event, Integer confirmedRequests, Long views) {
+        EventState state = EventState.PENDING;
+        if (event.getState() == PublicationState.PUBLISHED) {
+            state =  EventState.PUBLISHED;
+        }
+        if (event.getState() == PublicationState.CANCEL)
+            state = EventState.CANCELED;
+
+        EventDetailedDto dto = EventDetailedDto.builder()
+                .annotation(event.getAnnotation())
+                .category(CategoryMapper.toDto(event.getCategory()))
+                .confirmedRequests(confirmedRequests)
+                .createdOn(DateTimeMapper.toString(event.getCreatedOn()))
+                .description(event.getDescription())
+                .eventDate(DateTimeMapper.toString(event.getEventDate()))
+                .id(event.getId())
+                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+                .location(event.getLocation())
+                .paid(event.getPaid())
+                .participantLimit(event.getParticipantLimit())
+                .requestModeration(event.getRequestModeration())
+                .state(state)
+                .title(event.getTitle())
+                .views(views)
+                .build();
+
+        if (event.getPublishedOn() != null) {
+            dto.setPublishedOn(DateTimeMapper.toString(event.getPublishedOn()));
+        }
+        return dto;
     }
 
     private static Category matchCategory(Long id, CategoryRepository repo) {

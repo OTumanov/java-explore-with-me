@@ -5,24 +5,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
+import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.ParticipationMapper;
 import ru.practicum.mnsvc.model.*;
 import ru.practicum.mnsvc.repository.EventRepository;
 import ru.practicum.mnsvc.repository.ParticipationRepository;
 import ru.practicum.mnsvc.repository.UserRepository;
 import ru.practicum.mnsvc.service.ParticipationService;
-
+import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.mnsvc.utils.Util.*;
-
-
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class ParticipationServiceImpl implements ParticipationService {
 
     private final ParticipationRepository participationRepo;
@@ -31,7 +29,7 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     public List<ParticipationDto> getInfoAboutAllParticipation(Long userId) {
-        checkIfUserExists(userId, userRepo);
+        userRepo.findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
         List<Participation> participations = participationRepo.findAllByRequesterId(userId);
         return participations.stream().map(ParticipationMapper::toDto).collect(Collectors.toList());
     }
@@ -39,13 +37,10 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Override
     @Transactional
     public ParticipationDto addParticipationQuery(Long userId, Long eventId) {
-
-        if(eventId == null) {
-            throw new IllegalArgumentException("Событие не указано! eventId: " + eventId);
-        }
-
-        User user = checkIfUserExists(userId, userRepo);
-        Event event = checkIfEventExists(eventId, eventRepo);
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
 
         Participation participation = participationRepo
                 .findByEventIdAndRequesterId(eventId, userId).orElse(null);
@@ -59,7 +54,8 @@ public class ParticipationServiceImpl implements ParticipationService {
         if (!event.getState().equals(PublicationState.PUBLISHED)) {
             throw new ForbiddenException("you cannot take part in an unpublished event");
         }
-        if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+        int confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+        if (event.getParticipantLimit() != 0 && confirmedRequests >= event.getParticipantLimit()) {
             throw new ForbiddenException("the limit of participants in the event has been reached");
         }
 
@@ -81,10 +77,11 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     @Transactional
-    public ParticipationDto cancelParticipation(Long userId, Long requestId) {
-        checkIfUserExists(userId, userRepo);
-        Participation participation = checkIfParticipationRequestExists(requestId, participationRepo);
-        participationRepo.deleteById(requestId);
+    public ParticipationDto cancelParticipation(Long requesterId, Long requestId) {
+        Participation participation = participationRepo.findByRequesterIdAndId(requesterId, requestId)
+                .orElseThrow(() -> new NotFoundException("Participation not found requesterId: "
+                        + requesterId + " requestId: " + requestId));
+        participation.setState(ParticipationState.REJECT);
         return ParticipationMapper.toDto(participation);
     }
 }

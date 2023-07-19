@@ -10,16 +10,15 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "categories")
+@Entity
+@Table(name = "categories")
 public class Category {
 
-    public static final String ID_COLUMN_NAME = "category_id";
-    public static final String NAME_COLUMN_NAME = "category_name";
-
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = NAME_COLUMN_NAME)
+
+    @Column(name = "category_name")
     private String name;
 }

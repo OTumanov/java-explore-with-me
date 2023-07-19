@@ -1,12 +1,14 @@
 package ru.practicum.mnsvc.utils;
 
 
+import ru.practicum.ewm_ms.client.dto.UtilDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.*;
 import ru.practicum.mnsvc.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Util {
 
@@ -94,5 +96,25 @@ public class Util {
 
     public static Category mapIdToCategory(Long catId, CategoryRepository repo) {
         return repo.findById(catId).orElseThrow(() -> new NotFoundException(getCategoryNotFoundMessage(catId)));
+    }
+
+    public static List<Long> getEventIdsList(List<Event> events) {
+        return events.stream().map(Event::getId).collect(Collectors.toList());
+    }
+
+    public static Long matchLongValueByEventId(List<UtilDto> utilDtos, Long eventId) {
+        UtilDto dto = utilDtos.stream()
+                .filter(utilDto -> utilDto.getEntityId().equals(eventId))
+                .findFirst()
+                .orElse(new UtilDto(eventId, 0L));
+        return dto.getCount();
+    }
+
+    public static Integer matchIntValueByEventId(List<UtilDto> utilDtos, Long eventId) {
+        UtilDto dto = utilDtos.stream()
+                .filter(utilDto -> utilDto.getEntityId().equals(eventId))
+                .findFirst()
+                .orElse(new UtilDto(eventId, 0L));
+        return dto.getCount().intValue();
     }
 }

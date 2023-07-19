@@ -5,10 +5,7 @@ import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
-import ru.practicum.mnsvc.model.Category;
-import ru.practicum.mnsvc.model.Event;
-import ru.practicum.mnsvc.model.PublicationState;
-import ru.practicum.mnsvc.model.User;
+import ru.practicum.mnsvc.model.*;
 import ru.practicum.mnsvc.repository.CategoryRepository;
 import ru.practicum.mnsvc.repository.UserRepository;
 import ru.practicum.mnsvc.utils.Util;
@@ -81,6 +78,13 @@ public class EventMapper {
     }
 
     public static EventDetailedDto toEventDetailedDto(Event event) {
+        EventState state = EventState.PENDING;
+        if (event.getState().equals("PUBLISH_EVENT")) {
+            state = EventState.PUBLISHED;
+        }
+        if (event.getState().equals("REJECT_EVENT"))
+            state = EventState.CANCELED;
+
         return EventDetailedDto.builder()
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toDto(event.getCategory()))
@@ -95,7 +99,7 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(DateTimeMapper.toString(event.getPublishedOn()))
                 .requestModeration(event.getRequestModeration())
-                .state(event.getState().toString())
+                .state(state)
                 .title(event.getTitle())
                 .views(event.getViews())
                 .build();

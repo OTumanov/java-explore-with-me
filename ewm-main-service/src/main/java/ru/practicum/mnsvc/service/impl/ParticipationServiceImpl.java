@@ -22,7 +22,7 @@ import static ru.practicum.mnsvc.utils.Util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
 public class ParticipationServiceImpl implements ParticipationService {
 
     private final ParticipationRepository participationRepo;

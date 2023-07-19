@@ -47,15 +47,10 @@ public class EventAdminController {
         return eventService.editEvent(eventId, dto);
     }
 
-    @PatchMapping("/{eventId}/publish")
-    public EventDetailedDto publishEvent(@PathVariable Long eventId) {
+    @PatchMapping("/{eventId}")
+    public EventDetailedDto publishEvent(@PathVariable Long eventId,
+                                         @RequestBody String stateAction) {
         log.info("publish event id: {}", eventId);
-        return eventService.publishEvent(eventId);
-    }
-
-    @PatchMapping("/{eventId}/reject")
-    public EventDetailedDto rejectEvent(@PathVariable Long eventId) {
-        log.info("reject event id: {}", eventId);
-        return eventService.rejectEvent(eventId);
+        return eventService.publishEvent(eventId, stateAction);
     }
 }

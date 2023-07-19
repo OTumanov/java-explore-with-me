@@ -1,17 +1,16 @@
 package ru.practicum.mnsvc.dto.events;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 
 import ru.practicum.mnsvc.dto.category.CategoryDto;
 import ru.practicum.mnsvc.dto.users.UserShortDto;
+import ru.practicum.mnsvc.model.EventState;
 import ru.practicum.mnsvc.model.Location;
 
 @Getter
 @Setter
+@ToString
 @Builder
 @AllArgsConstructor
 public class EventDetailedDto {
@@ -28,7 +27,7 @@ public class EventDetailedDto {
     private Integer participantLimit;
     private String publishedOn;
     private Boolean requestModeration;
-    private String state;
+    private EventState state;
     private String title;
     private Long views;
 }

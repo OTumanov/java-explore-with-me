@@ -16,7 +16,11 @@ public class DateTimeMapper {
     }
 
     public static String toString(LocalDateTime date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
-        return date.format(formatter);
+        if (date == null) {
+            return null;
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+            return date.format(formatter);
+        }
     }
 }

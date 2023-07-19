@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "events")
@@ -50,7 +51,7 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = INITIATOR_COLUMN_NAME)
     private User initiator;
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = LOCATION_COLUMN_NAME)
     private Location location;
     @Column(name = PAID_COLUMN_NAME)

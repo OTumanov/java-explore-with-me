@@ -95,7 +95,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDetailedDto postEvent(Long userId, EventPostDto dto) {
-        if (isEventDateOk(dto.getEventDate())) {
+        if (!isEventDateOk(dto.getEventDate())) {
             throw new ForbiddenException("Событие не может быть запланировано ранее двух часов до события");
         }
         Event event = EventMapper.toModel(dto, userId, categoryRepo, userRepo);
@@ -230,32 +230,34 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto publishEvent(Long eventId) {
-        Event event = eventRepo.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+    public EventDetailedDto publishEvent(Long eventId, String state) {
+        if (state.equals("PUBLISH_EVENT")) {
+            Event event = eventRepo.findById(eventId)
+                    .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
 
-        if (!event.getState().equals(PublicationState.PENDING)) {
-            throw new ForbiddenException("event must be in the publication waiting state");
-        }
-        if (!isMayPublish(event)) {
-            throw new ForbiddenException("event date must be no earlier than an hour from the date of publication");
-        }
-        event.setPublishedOn(LocalDateTime.now());
-        event.setState(PublicationState.PUBLISHED);
-        event = eventRepo.save(event);
-        return EventMapper.toEventDetailedDto(event);
-    }
+            if (!event.getState().equals(PublicationState.PENDING)) {
+                throw new ForbiddenException("event must be in the publication waiting state");
+            }
+            if (!isMayPublish(event)) {
+                throw new ForbiddenException("event date must be no earlier than an hour from the date of publication");
+            }
+            event.setPublishedOn(LocalDateTime.now());
+            event.setState(PublicationState.PUBLISHED);
+            event = eventRepo.save(event);
 
-    @Override
-    @Transactional
-    public EventDetailedDto rejectEvent(Long eventId) {
-        Event event = eventRepo.findById(eventId)
-                .orElseThrow(() -> new ForbiddenException(Util.getEventNotFoundMessage(eventId)));
-        if (event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new ForbiddenException("not possible to reject a published event");
+            return EventMapper.toEventDetailedDto(event);
+
+        } else if (state.equals("REJECT_EVENT")) {
+            Event event = eventRepo.findById(eventId)
+                    .orElseThrow(() -> new ForbiddenException(Util.getEventNotFoundMessage(eventId)));
+            if (event.getState().equals(PublicationState.PUBLISHED)) {
+                throw new ForbiddenException("not possible to reject a published event");
+            }
+            event.setState(PublicationState.REJECTED);
+            event = eventRepo.save(event);
+
+            return EventMapper.toEventDetailedDto(event);
         }
-        event.setState(PublicationState.REJECTED);
-        event = eventRepo.save(event);
-        return EventMapper.toEventDetailedDto(event);
+        return null;
     }
 }

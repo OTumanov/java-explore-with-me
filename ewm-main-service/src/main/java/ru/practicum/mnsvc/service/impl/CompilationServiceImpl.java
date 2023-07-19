@@ -27,7 +27,7 @@ import static ru.practicum.mnsvc.utils.Util.checkIfEventExists;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepo;

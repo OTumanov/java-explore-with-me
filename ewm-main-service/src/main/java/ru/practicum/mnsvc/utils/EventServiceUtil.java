@@ -100,7 +100,7 @@ public class EventServiceUtil {
 
     public static boolean isEventDateOk(String eventDate) {
         LocalDateTime date = DateTimeMapper.toDateTime(eventDate);
-        return date.isAfter(LocalDateTime.now().plusHours(HOURS_LEFT_BEFORE_EVENT));
+        return date.isAfter(LocalDateTime.now().plusHours(2));
     }
 
     public static Event addView(Event event, EventRepository eventRepo) {

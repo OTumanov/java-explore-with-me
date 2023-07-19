@@ -1,4 +1,4 @@
-package ru.practicum.mnsvc.controller.adminController;
+package ru.practicum.mnsvc.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,32 +20,25 @@ import java.util.List;
 @RequestMapping(path = "/admin/users")
 public class UserAdminController {
 
-    public static final String DEFAULT_FROM = "0";
-    public static final String DEFAULT_SIZE = "10";
-
     private final UserService userService;
 
     @GetMapping
     public List<UserDto> findUsers(@RequestParam List<Long> ids,
-                                   @PositiveOrZero
-                                   @RequestParam(defaultValue = DEFAULT_FROM) Integer from,
-                                   @Positive
-                                   @RequestParam(defaultValue = DEFAULT_SIZE) Integer size) {
-        log.info("Searching Users ids: {}", ids);
+                                   @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                   @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Получить список пользователей: {}", ids);
         return userService.findUsers(ids, from, size);
     }
 
     @PostMapping
-    public UserDto postUser(@Validated({CommonValidMarker.class})
-                            @RequestBody NewUserDto dto) {
-        log.info("Post User {}", dto);
+    public UserDto postUser(@Validated({CommonValidMarker.class}) @RequestBody NewUserDto dto) {
+        log.info("Добавить пользователя: {}", dto);
         return userService.postUser(dto);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@Positive
-                           @PathVariable Long userId) {
-        log.info("Delete User id: {}", userId);
+    public void deleteUser(@Positive @PathVariable Long userId) {
+        log.info("Удалить пользователя id: {}", userId);
         userService.deleteUser(userId);
     }
 }

@@ -1,14 +1,12 @@
 package ru.practicum.mnsvc.dto.compile;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @Builder
 @AllArgsConstructor
 public class CompilationPostDto {
@@ -16,12 +14,12 @@ public class CompilationPostDto {
     private Boolean pinned;
     private String title;
 
-    @Override
-    public String toString() {
-        return "CompilationPostDto{" +
-                "events=" + events +
-                ", pinned=" + pinned +
-                ", title='" + title + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "CompilationPostDto{" +
+//                "events=" + events +
+//                ", pinned=" + pinned +
+//                ", title='" + title + '\'' +
+//                '}';
+//    }
 }

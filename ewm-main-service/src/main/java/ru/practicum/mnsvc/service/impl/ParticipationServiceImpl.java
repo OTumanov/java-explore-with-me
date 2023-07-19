@@ -39,6 +39,11 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Override
     @Transactional
     public ParticipationDto addParticipationQuery(Long userId, Long eventId) {
+
+        if(eventId == null) {
+            throw new IllegalArgumentException("Событие не указано! eventId: " + eventId);
+        }
+
         User user = checkIfUserExists(userId, userRepo);
         Event event = checkIfEventExists(eventId, eventRepo);
 

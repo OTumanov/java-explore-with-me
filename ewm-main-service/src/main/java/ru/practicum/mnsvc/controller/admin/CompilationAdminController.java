@@ -1,4 +1,4 @@
-package ru.practicum.mnsvc.controller.adminController;
+package ru.practicum.mnsvc.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class CompilationAdminController {
 
     @PostMapping
     public CompilationResponseDto addNewCompilation(@RequestBody CompilationPostDto dto) {
-        log.info("add new compilation: {}", dto);
+        log.info("Добавить новую подборку событий - {}", dto);
         return compilationService.addNewCompilation(dto);
     }
 

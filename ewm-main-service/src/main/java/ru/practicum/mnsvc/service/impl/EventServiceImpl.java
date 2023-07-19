@@ -96,7 +96,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDetailedDto postEvent(Long userId, EventPostDto dto) {
         if (isEventDateOk(dto.getEventDate())) {
-            throw new ForbiddenException("the event cannot be earlier than 2 hours from the current time");
+            throw new ForbiddenException("Событие не может быть запланировано ранее двух часов до события");
         }
         Event event = EventMapper.toModel(dto, userId, categoryRepo, userRepo);
         event = eventRepo.save(event);

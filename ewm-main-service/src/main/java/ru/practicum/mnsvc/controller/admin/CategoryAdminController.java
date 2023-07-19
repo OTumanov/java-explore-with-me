@@ -1,4 +1,4 @@
-package ru.practicum.mnsvc.controller.adminController;
+package ru.practicum.mnsvc.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,19 +18,19 @@ public class CategoryAdminController {
 
     @PatchMapping
     public CategoryDto patchCategory(@RequestBody CategoryDto dto) {
-        log.info("patch category {}", dto);
+        log.info("Изменить категорию: {}", dto);
         return categoryService.patchCategory(dto);
     }
 
     @PostMapping
     public CategoryDto addNewCategory(@RequestBody CategoryPostDto dto) {
-        log.info("create new category: {}", dto);
+        log.info("Добавить категорию: {}", dto);
         return categoryService.addNewCategory(dto);
     }
 
     @DeleteMapping("/{catId}")
     public void deleteCategory(@PathVariable Long catId) {
-        log.info("delete category id: {}", catId);
+        log.info("Удалить категорию id: {}", catId);
         categoryService.deleteCategory(catId);
     }
 }

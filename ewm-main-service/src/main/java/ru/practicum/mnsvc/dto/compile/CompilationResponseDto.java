@@ -1,15 +1,13 @@
 package ru.practicum.mnsvc.dto.compile;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @Builder
 @AllArgsConstructor
 public class CompilationResponseDto {

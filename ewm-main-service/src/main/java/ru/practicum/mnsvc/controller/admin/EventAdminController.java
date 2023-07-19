@@ -1,4 +1,4 @@
-package ru.practicum.mnsvc.controller.adminController;
+package ru.practicum.mnsvc.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +17,6 @@ import java.util.List;
 @RequestMapping(path = "/admin/events")
 public class EventAdminController {
 
-    public static final String DEFAULT_FROM = "0";
-    public static final String DEFAULT_SIZE = "10";
-
     private final EventService eventService;
 
     @GetMapping
@@ -28,8 +25,8 @@ public class EventAdminController {
                                                          @RequestParam List<Long> categories,
                                                          @RequestParam String rangeStart,
                                                          @RequestParam String rangeEnd,
-                                                         @RequestParam(defaultValue = DEFAULT_FROM) Integer from,
-                                                         @RequestParam(defaultValue = DEFAULT_SIZE) Integer size) {
+                                                         @RequestParam(defaultValue = "0") Integer from,
+                                                         @RequestParam(defaultValue = "10") Integer size) {
         EventSearchParams searchParams = new EventSearchParams(
                 userIds,
                 states,
@@ -39,7 +36,7 @@ public class EventAdminController {
                 from,
                 size
         );
-        log.info("find event by conditions {}", searchParams);
+        log.info("Получить события по условиям: {}", searchParams);
         return eventService.findEventsByConditions(searchParams);
     }
 

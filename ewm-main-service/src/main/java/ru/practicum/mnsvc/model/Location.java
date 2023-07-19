@@ -7,21 +7,21 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "locations")
+@Entity
+@Table(name = "locations")
 public class Location {
 
-    public static final String ID_COLUMN_NAME = "location_id";
-    public static final String LAT_COLUMN_NAME = "lat";
-    public static final String LON_COLUMN_NAME = "lon";
-
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "location_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = LAT_COLUMN_NAME)
+
+    @Column(name = "lat")
     private double lat;
-    @Column(name = LON_COLUMN_NAME)
+
+    @Column(name = "lon")
     private double lon;
 }

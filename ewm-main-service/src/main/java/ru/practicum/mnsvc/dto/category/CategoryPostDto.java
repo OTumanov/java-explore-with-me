@@ -6,17 +6,19 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryPostDto {
+
     @NotBlank
     private String name;
 
-    @Override
-    public String toString() {
-        return "CategoryPostDto{" +
-                "name='" + name + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "CategoryPostDto{" +
+//                "name='" + name + '\'' +
+//                '}';
+//    }
 }

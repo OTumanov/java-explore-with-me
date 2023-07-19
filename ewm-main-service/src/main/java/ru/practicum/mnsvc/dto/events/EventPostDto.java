@@ -3,6 +3,7 @@ package ru.practicum.mnsvc.dto.events;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.mnsvc.model.Location;
+import ru.practicum.mnsvc.model.StateAction;
 
 @Getter
 @Setter
@@ -22,6 +23,8 @@ public class EventPostDto {
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;
+
+    private StateAction stateAction;
 
     @Length(min = 3, max = 120)
     private String title;

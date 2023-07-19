@@ -79,10 +79,10 @@ public class EventMapper {
 
     public static EventDetailedDto toEventDetailedDto(Event event) {
         EventState state = EventState.PENDING;
-        if (event.getState().equals("PUBLISH_EVENT")) {
-            state = EventState.PUBLISHED;
+        if (event.getState() == PublicationState.PUBLISHED) {
+            state =  EventState.PUBLISHED;
         }
-        if (event.getState().equals("REJECT_EVENT"))
+        if (event.getState() == PublicationState.CANCEL)
             state = EventState.CANCELED;
 
         return EventDetailedDto.builder()

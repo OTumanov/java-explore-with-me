@@ -49,8 +49,14 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     public EventDetailedDto publishEvent(@PathVariable Long eventId,
-                                         @RequestBody String stateAction) {
-        log.info("publish event id: {}", eventId);
+                                         @RequestBody EventPostDto stateAction) {
+        log.info("Публикация события: {} со статусом {}", eventId, stateAction.getStateAction());
         return eventService.publishEvent(eventId, stateAction);
+
+
+//        public EventDetailedDto publishEvent(@PathVariable Long eventId,
+//                                         @RequestBody String stateAction) {
+//        log.info("Публикация события: {} со статусом {}", eventId, stateAction);
+//        return eventService.publishEvent(eventId, stateAction);
     }
 }

@@ -27,6 +27,7 @@ import ru.practicum.mnsvc.service.EventService;
 import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,8 @@ public class EventServiceImpl implements EventService {
         Sort sort = Sort.by(params.getSort().toString());
         Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), sort);
         Specification<Event> specification = getSpecification(params, true);
-        List<Event> events = eventRepo.findAll(specification, pageable).toList();
+        List<Event> events = new ArrayList<>();
+        events = eventRepo.findAll(specification, pageable).toList();
         addViewForEach(events, eventRepo);
         client.postHit(endpoint, clientIp);
         return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
@@ -230,8 +232,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto publishEvent(Long eventId, String state) {
-        if (state.equals("PUBLISH_EVENT")) {
+    public EventDetailedDto publishEvent(Long eventId, EventPostDto state) {
+        if (state.getStateAction() == StateAction.PUBLISH_EVENT) {
             Event event = eventRepo.findById(eventId)
                     .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
 
@@ -247,7 +249,7 @@ public class EventServiceImpl implements EventService {
 
             return EventMapper.toEventDetailedDto(event);
 
-        } else if (state.equals("REJECT_EVENT")) {
+        } else if (state.getStateAction() == StateAction.REJECT_EVENT) {
             Event event = eventRepo.findById(eventId)
                     .orElseThrow(() -> new ForbiddenException(Util.getEventNotFoundMessage(eventId)));
             if (event.getState().equals(PublicationState.PUBLISHED)) {

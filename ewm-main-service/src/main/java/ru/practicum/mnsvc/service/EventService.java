@@ -35,7 +35,7 @@ public interface EventService {
 
     EventDetailedDto editEvent(Long eventId, EventPostDto dto);
 
-    EventDetailedDto publishEvent(Long eventId, String state);
+    EventDetailedDto publishEvent(Long eventId, EventPostDto state);
 
 //    EventDetailedDto rejectEvent(Long eventId);
 }

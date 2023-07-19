@@ -20,15 +20,15 @@ public class EventPublicController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventShortDto> getEvents(@RequestParam String text,
-                                         @RequestParam List<Long> categories,
-                                         @RequestParam Boolean paid,
-                                         @RequestParam String rangeStart,
-                                         @RequestParam String rangeEnd,
-                                         @RequestParam Boolean onlyAvailable,
-                                         @RequestParam String sort,
-                                         @RequestParam Integer from,
-                                         @RequestParam Integer size,
+    public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
+                                         @RequestParam(required = false) List<Long> categories,
+                                         @RequestParam(required = false) Boolean paid,
+                                         @RequestParam(required = false) String rangeStart,
+                                         @RequestParam(required = false) String rangeEnd,
+                                         @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+                                         @RequestParam(defaultValue = "EVENT_DATE") String sort,
+                                         @RequestParam(defaultValue = "0") Integer from,
+                                         @RequestParam(defaultValue = "10") Integer size,
                                          HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();

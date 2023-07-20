@@ -1,4 +1,4 @@
-package ru.practicum.ewm_ms.client.mapper;
+package ru.practicum.ewm.client.mapper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

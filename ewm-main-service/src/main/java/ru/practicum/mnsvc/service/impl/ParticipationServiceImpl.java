@@ -37,6 +37,9 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Override
     @Transactional
     public ParticipationDto addParticipationQuery(Long userId, Long eventId) {
+        if(eventId == null) {
+            throw new IllegalArgumentException("event id is null");
+        }
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
         Event event = eventRepo.findById(eventId)
@@ -81,7 +84,7 @@ public class ParticipationServiceImpl implements ParticipationService {
         Participation participation = participationRepo.findByRequesterIdAndId(requesterId, requestId)
                 .orElseThrow(() -> new NotFoundException("Participation not found requesterId: "
                         + requesterId + " requestId: " + requestId));
-        participation.setState(ParticipationState.REJECT);
+        participation.setState(ParticipationState.REJECTED);
         return ParticipationMapper.toDto(participation);
     }
 }

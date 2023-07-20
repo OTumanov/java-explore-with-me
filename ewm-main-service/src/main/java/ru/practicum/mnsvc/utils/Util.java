@@ -1,7 +1,7 @@
 package ru.practicum.mnsvc.utils;
 
 
-import ru.practicum.ewm_ms.client.dto.UtilDto;
+import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.*;
 import ru.practicum.mnsvc.repository.*;

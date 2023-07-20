@@ -2,6 +2,7 @@ package ru.practicum.mnsvc.model;
 
 public enum ParticipationState {
     PENDING,
-    REJECT,
+    REJECTED,
     CONFIRMED,
+    CANCELED
 }

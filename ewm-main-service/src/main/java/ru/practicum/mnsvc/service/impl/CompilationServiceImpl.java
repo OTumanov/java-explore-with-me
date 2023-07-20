@@ -1,28 +1,34 @@
 package ru.practicum.mnsvc.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.client.EventClient;
+import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.mnsvc.dto.compile.CompilationPostDto;
 import ru.practicum.mnsvc.dto.compile.CompilationResponseDto;
+import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.CompilationMapper;
+import ru.practicum.mnsvc.mapper.EventMapper;
 import ru.practicum.mnsvc.model.CompEvent;
 import ru.practicum.mnsvc.model.Compilation;
+import ru.practicum.mnsvc.model.Event;
+import ru.practicum.mnsvc.model.ParticipationState;
 import ru.practicum.mnsvc.repository.CompEventsRepository;
 import ru.practicum.mnsvc.repository.CompilationRepository;
 import ru.practicum.mnsvc.repository.EventRepository;
+import ru.practicum.mnsvc.repository.ParticipationRepository;
 import ru.practicum.mnsvc.service.CompilationService;
 import ru.practicum.mnsvc.utils.Util;
-
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.mnsvc.utils.Util.checkIfCompilationExists;
-import static ru.practicum.mnsvc.utils.Util.checkIfEventExists;
+import static ru.practicum.mnsvc.utils.Util.*;
 
 
 @Service
@@ -30,35 +36,48 @@ import static ru.practicum.mnsvc.utils.Util.checkIfEventExists;
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
+    private final ParticipationRepository participationRepo;
     private final CompilationRepository compilationRepo;
     private final CompEventsRepository compEventsRepo;
     private final EventRepository eventRepo;
+    private final EventClient client = new EventClient("http://localhost/8080", new RestTemplateBuilder());
 
     @Override
     public List<CompilationResponseDto> findAll(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Compilation> compilations = compilationRepo.findAllByPinned(pinned, pageable);
+        List<Compilation> compilations;
+        if (pinned != null) {
+            compilations = compilationRepo.findAllByPinned(pinned, pageable);
+        } else {
+            compilations = compilationRepo.findAll(pageable).toList();
+        }
+
         return compilations
                 .stream()
-                .map(CompilationMapper::toResponseDto)
+                .map((Compilation compilation) -> CompilationMapper.toResponseDto(
+                        compilation, getEventShortDtos(compilation)
+                ))
                 .collect(Collectors.toList());
     }
 
     @Override
     public CompilationResponseDto findById(Long compId) {
-        Compilation compilation = compilationRepo.findById(compId).orElse(null);
-        if (compilation == null) {
-            throw new NotFoundException(Util.getCompilationNotFoundMessage(compId));
-        }
-        return CompilationMapper.toResponseDto(compilation);
+        Compilation compilation = compilationRepo.findById(compId)
+                .orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+
+        List<EventShortDto> eventDtos = getEventShortDtos(compilation);
+        return CompilationMapper.toResponseDto(compilation, eventDtos);
     }
 
     @Override
     @Transactional
     public CompilationResponseDto addNewCompilation(CompilationPostDto dto) {
-        Compilation compilation = CompilationMapper.toModel(dto, eventRepo);
+        List<Event> events = eventRepo.findAll(dto.getEvents());
+        Compilation compilation = CompilationMapper.toModel(dto, events);
         compilation = compilationRepo.save(compilation);
-        return CompilationMapper.toResponseDto(compilation);
+
+        List<EventShortDto> eventDtos = getEventShortDtoList(events);
+        return CompilationMapper.toResponseDto(compilation, eventDtos);
     }
 
     @Override
@@ -70,16 +89,18 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void deleteEventFromCompilation(Long compId, Long eventId) {
-        checkIfCompilationExists(compId, compilationRepo);
-        checkIfEventExists(eventId, eventRepo);
+        compilationRepo
+                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+        eventRepo.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
         compEventsRepo.deleteByCompilationIdAndEventId(compId, eventId);
     }
 
     @Override
     @Transactional
     public void addEventToCompilation(Long compId, Long eventId) {
-        checkIfCompilationExists(compId, compilationRepo);
-        checkIfEventExists(eventId, eventRepo);
+        compilationRepo
+                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+        eventRepo.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
         CompEvent compEvent = new CompEvent(compId, eventId);
         compEventsRepo.save(compEvent);
     }
@@ -87,20 +108,33 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void unpinCompilation(Long compId) {
-        Compilation compilation = checkIfCompilationExists(compId, compilationRepo);
-        if (compilation.getPinned()) {
-            compilation.setPinned(false);
-            compilationRepo.save(compilation);
-        }
+        Compilation compilation = compilationRepo
+                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+        compilation.setPinned(false);
     }
 
     @Override
     @Transactional
     public void pinCompilation(Long compId) {
-        Compilation compilation = checkIfCompilationExists(compId, compilationRepo);
-        if (!compilation.getPinned()) {
-            compilation.setPinned(true);
-            compilationRepo.save(compilation);
-        }
+        Compilation compilation = compilationRepo
+                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+        compilation.setPinned(true);
+    }
+
+    private List<EventShortDto> getEventShortDtos(Compilation compilation) {
+        return getEventShortDtoList(compilation.getEvents());
+    }
+
+    private List<EventShortDto> getEventShortDtoList(List<Event> events) {
+        List<Long> eventIds = getEventIdsList(events);
+        List<UtilDto> confirmedReqEventIdRelations = participationRepo
+                .countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
+        List<UtilDto> viewsEventIdRelations = client.getViewsByEventIds(eventIds);
+        return events.stream()
+                .map((Event event) -> EventMapper.toEventShortDto(
+                        event,
+                        matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
+                        matchLongValueByEventId(viewsEventIdRelations, event.getId())))
+                .collect(Collectors.toList());
     }
 }

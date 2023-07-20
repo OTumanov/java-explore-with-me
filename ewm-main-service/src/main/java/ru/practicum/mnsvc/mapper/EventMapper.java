@@ -1,7 +1,6 @@
 package ru.practicum.mnsvc.mapper;
 
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
-import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
@@ -69,9 +68,9 @@ public class EventMapper {
     public static EventDetailedDto toEventDetailedDto(Event event) {
         EventState state = EventState.PENDING;
         if (event.getState() == PublicationState.PUBLISHED) {
-            state =  EventState.PUBLISHED;
+            state = EventState.PUBLISHED;
         }
-        if (event.getState() == PublicationState.CANCEL)
+        if (event.getState() == PublicationState.CANCELED)
             state = EventState.CANCELED;
 
         return EventDetailedDto.builder()
@@ -97,9 +96,9 @@ public class EventMapper {
     public static EventDetailedDto toEventDetailedDto(Event event, Integer confirmedRequests, Long views) {
         EventState state = EventState.PENDING;
         if (event.getState() == PublicationState.PUBLISHED) {
-            state =  EventState.PUBLISHED;
+            state = EventState.PUBLISHED;
         }
-        if (event.getState() == PublicationState.CANCEL)
+        if (event.getState() == PublicationState.CANCELED)
             state = EventState.CANCELED;
 
         EventDetailedDto dto = EventDetailedDto.builder()

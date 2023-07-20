@@ -1,14 +1,17 @@
 package ru.practicum.mnsvc.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm_ms.client.EventClient;
-import ru.practicum.ewm_ms.client.dto.UtilDto;
+
+
+import ru.practicum.ewm.client.EventClient;
+import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
@@ -42,7 +45,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepo;
     private final EventRepository eventRepo;
     private final UserRepository userRepo;
-    private EventClient client;
+    private final EventClient client = new EventClient("http://localhost/8080", new RestTemplateBuilder());
 
     @Override
     @Transactional
@@ -87,7 +90,7 @@ public class EventServiceImpl implements EventService {
         }
 
         updateEvent(event, dto, categoryRepo);
-        if (event.getState().equals(PublicationState.CANCEL)) {
+        if (event.getState().equals(PublicationState.CANCELED)) {
             event.setState(PublicationState.PENDING);
         }
         event = eventRepo.save(event);
@@ -135,7 +138,7 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenException("the event can only be canceled in the waiting state, current state: "
                     + event.getState());
         }
-        event.setState(PublicationState.CANCEL);
+        event.setState(PublicationState.CANCELED);
         event = eventRepo.save(event);
         Integer confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(event.getId()).getBody();
@@ -186,10 +189,10 @@ public class EventServiceImpl implements EventService {
         Participation participation = participationRepo.findById(reqId)
                 .orElseThrow(() -> new NotFoundException(Util.getParticipationNotFoundMessage(reqId)));
 
-        if (participation.getState().equals(ParticipationState.REJECT)) {
+        if (participation.getState().equals(ParticipationState.REJECTED)) {
             throw new ForbiddenException("request for participation has already been rejected");
         }
-        participation.setState(ParticipationState.REJECT);
+        participation.setState(ParticipationState.REJECTED);
         participation = participationRepo.save(participation);
         return ParticipationMapper.toDto(participation);
     }
@@ -283,7 +286,7 @@ public class EventServiceImpl implements EventService {
         if (event.getState().equals(PublicationState.PUBLISHED)) {
             throw new ForbiddenException("not possible to reject a published event");
         }
-        event.setState(PublicationState.CANCEL);
+        event.setState(PublicationState.CANCELED);
         event = eventRepo.save(event);
         Integer confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(event.getId()).getBody();
@@ -336,7 +339,7 @@ public class EventServiceImpl implements EventService {
                     .findAllByEventIdAndState(event.getId(), ParticipationState.PENDING);
 
             for (Participation par : participations) {
-                par.setState(ParticipationState.REJECT);
+                par.setState(ParticipationState.REJECTED);
                 participationRepo.save(par);
             }
         }

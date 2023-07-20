@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import ru.practicum.ewm.client.EventClient;
 import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
@@ -51,12 +50,24 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public List<EventShortDto> getEvents(EventSearchParams params, String clientIp, String endpoint) {
         Sort sort = Sort.unsorted();
+
         if (params.getSort() != null) {
-            sort = getSort(params.getSort());
+            if (params.getSort().equals(EventSort.EVENT_DATE)) {
+               sort = Sort.by(params.getSort().getValue());
+            }
+            if (params.getSort().equals(EventSort.VIEWS)) {
+                sort = Sort.by(params.getSort().getValue());
+            }
         }
+
+        System.out.println("Отсортировали");
+
         Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), sort);
         Specification<Event> specification = getSpecification(params, true);
         List<Event> events = eventRepo.findAll(specification, pageable).toList();
+        System.out.println("страницы посчитали");
+        System.out.println("подозреваю, что тут будет какое-то говно");
+        System.out.println(events);
         addHitForEach(endpoint, clientIp, events, client);
         return prepareDataAndGetEventShortDtoList(events);
     }
@@ -260,38 +271,41 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto publishEvent(Long eventId) {
-        Event event = eventRepo.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+    public EventDetailedDto publishEvent(Long eventId, EventPostDto dto) {
 
-        if (!event.getState().equals(PublicationState.PENDING)) {
-            throw new ForbiddenException("event must be in the publication waiting state");
+        if (dto.getStateAction() == StateAction.PUBLISH_EVENT) {
+
+            Event event = eventRepo.findById(eventId)
+                    .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+
+            if (!event.getState().equals(PublicationState.PENDING)) {
+                throw new ForbiddenException("event must be in the publication waiting state");
+            }
+            if (!isMayPublish(event)) {
+                throw new ForbiddenException("event date must be no earlier than an hour from the date of publication");
+            }
+            event.setPublishedOn(LocalDateTime.now());
+            event.setState(PublicationState.PUBLISHED);
+            event = eventRepo.save(event);
+            Integer confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+            Long views = client.getViewsByEventId(event.getId()).getBody();
+            return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+        } else if (dto.getStateAction() == StateAction.REJECT_EVENT) {
+            Event event = eventRepo.findById(eventId)
+                    .orElseThrow(() -> new ForbiddenException(Util.getEventNotFoundMessage(eventId)));
+            if (event.getState().equals(PublicationState.PUBLISHED)) {
+                throw new ForbiddenException("not possible to reject a published event");
+            }
+            event.setState(PublicationState.CANCELED);
+            event = eventRepo.save(event);
+            Integer confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+            Long views = client.getViewsByEventId(event.getId()).getBody();
+            return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+        } else {
+            throw new ForbiddenException("invalid state action");
         }
-        if (!isMayPublish(event)) {
-            throw new ForbiddenException("event date must be no earlier than an hour from the date of publication");
-        }
-        event.setPublishedOn(LocalDateTime.now());
-        event.setState(PublicationState.PUBLISHED);
-        event = eventRepo.save(event);
-        Integer confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
-        Long views = client.getViewsByEventId(event.getId()).getBody();
-        return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
     }
 
-    @Override
-    @Transactional
-    public EventDetailedDto rejectEvent(Long eventId) {
-        Event event = eventRepo.findById(eventId)
-                .orElseThrow(() -> new ForbiddenException(Util.getEventNotFoundMessage(eventId)));
-        if (event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new ForbiddenException("not possible to reject a published event");
-        }
-        event.setState(PublicationState.CANCELED);
-        event = eventRepo.save(event);
-        Integer confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
-        Long views = client.getViewsByEventId(event.getId()).getBody();
-        return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
-    }
 
     private void addHit(String endpoint, String clientIp, Long eventId, EventClient client) {
         client.postHit(endpoint, clientIp, eventId);
@@ -346,10 +360,10 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventShortDto> prepareDataAndGetEventShortDtoList(List<Event> events) {
-        List<Long> eventIds = getEventIdsList(events);
-        List<UtilDto> confirmedReqEventIdRelations = participationRepo
-                .countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<UtilDto> confirmedReqEventIdRelations = participationRepo.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
         List<UtilDto> viewsEventIdRelations = client.getViewsByEventIds(eventIds);
+
         return events.stream()
                 .map((Event event) -> EventMapper.toEventShortDto(
                         event,

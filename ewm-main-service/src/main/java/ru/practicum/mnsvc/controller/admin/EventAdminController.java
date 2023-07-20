@@ -20,9 +20,6 @@ import java.util.List;
 @RequestMapping(path = "/admin/events")
 public class EventAdminController {
 
-    public static final String DEFAULT_FROM = "0";
-    public static final String DEFAULT_SIZE = "10";
-
     private final EventService eventService;
 
     @GetMapping
@@ -32,10 +29,10 @@ public class EventAdminController {
                                                          @RequestParam(required = false) String rangeStart,
                                                          @RequestParam(required = false) String rangeEnd,
                                                          @PositiveOrZero
-                                                         @RequestParam(required = false, defaultValue = DEFAULT_FROM)
+                                                         @RequestParam(required = false, defaultValue = "0")
                                                          Integer from,
                                                          @Positive
-                                                         @RequestParam(required = false, defaultValue = DEFAULT_SIZE)
+                                                         @RequestParam(required = false, defaultValue = "10")
                                                          Integer size) {
         EventSearchParams searchParams = new EventSearchParams(
                 userIds,
@@ -51,24 +48,16 @@ public class EventAdminController {
     }
 
     @PutMapping("/{eventId}")
-    public EventDetailedDto editEvent(@Positive
-                                      @PathVariable Long eventId,
+    public EventDetailedDto editEvent(@Positive @PathVariable Long eventId,
                                       @RequestBody EventPostDto dto) {
-        log.info("edit event id:{}, {}", eventId, dto);
+        log.info("Редактировать событие id:{}, {}", eventId, dto);
         return eventService.editEvent(eventId, dto);
     }
 
-    @PatchMapping("/{eventId}/publish")
-    public EventDetailedDto publishEvent(@Positive
-                                         @PathVariable Long eventId) {
-        log.info("publish event id: {}", eventId);
-        return eventService.publishEvent(eventId);
-    }
-
-    @PatchMapping("/{eventId}/reject")
-    public EventDetailedDto rejectEvent(@Positive
-                                        @PathVariable Long eventId) {
-        log.info("reject event id: {}", eventId);
-        return eventService.rejectEvent(eventId);
+    @PatchMapping("/{eventId}")
+    public EventDetailedDto publishEvent(@Positive @PathVariable Long eventId,
+                                        @RequestBody EventPostDto dto) {
+        log.info("Опубликовать событие id: {}. Получен статус: {}", eventId, dto.getStateAction());
+        return eventService.publishEvent(eventId, dto);
     }
 }

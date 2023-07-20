@@ -32,8 +32,9 @@ public class EventPublicController {
                                          HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        log.info("client ip: {}", clientIp);
-        log.info("endpoint path: {}", endpoint);
+        log.info("Подключение с ip-адреса: {}", clientIp);
+        log.info("Подключение к эндпоинту: http://localhost:8080{}", endpoint);
+
         EventSearchParams criteria = new EventSearchParams(
                 text,
                 categories,
@@ -45,6 +46,9 @@ public class EventPublicController {
                 from,
                 size
         );
+
+        System.out.println(criteria);
+
         return eventService.getEvents(criteria, clientIp, endpoint);
     }
 

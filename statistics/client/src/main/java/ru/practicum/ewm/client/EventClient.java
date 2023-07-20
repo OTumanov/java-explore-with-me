@@ -34,7 +34,7 @@ public class EventClient {
     public static final String APP_NAME = "ewm-main-service";
     public static final String API_STATS_PREFIX = "/stats";
     public static final String API_VIEWS_PREFIX = "/views";
-    public static final String BASE_PATH = "http://ewm-stats-service:9090";
+    public static final String BASE_PATH = "http://localhost:9090";
 
     private final RestTemplate hitRest;
     private final RestTemplate statsRest;
@@ -58,7 +58,14 @@ public class EventClient {
     }
 
     public void postHit(String endpoint, String clientIp, Long eventId) {
-        HitDto dto = new HitDto(APP_NAME, endpoint, clientIp, DateTimeMapper.toString(LocalDateTime.now()), eventId);
+        HitDto dto = HitDto.builder()
+                .app(APP_NAME)
+                .eventId(eventId)
+                .timeStamp(DateTimeMapper.toString(LocalDateTime.now()))
+                .uri(endpoint)
+                .ip(clientIp)
+                .build();
+
         HttpEntity<HitDto> requestEntity = new HttpEntity<>(dto);
         String path = BASE_PATH + API_HIT_PREFIX;
         hitRest.exchange(path, HttpMethod.POST, requestEntity, HitDto.class);

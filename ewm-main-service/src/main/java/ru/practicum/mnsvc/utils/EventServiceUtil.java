@@ -2,16 +2,11 @@ package ru.practicum.mnsvc.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-
 import ru.practicum.mnsvc.mapper.DateTimeMapper;
 import ru.practicum.mnsvc.model.Event;
 import ru.practicum.mnsvc.model.EventSearchParams;
-import ru.practicum.mnsvc.model.EventSort;
 import ru.practicum.mnsvc.model.PublicationState;
-
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
@@ -24,18 +19,8 @@ public class EventServiceUtil {
     public static final long HOURS_LEFT_BEFORE_EVENT = 2;
     public static final long HOURS_LEFT_AFTER_PUBLICATION = 1;
 
-    public static Sort getSort(EventSort sortBy) {
-        if (sortBy.equals(EventSort.EVENT_DATE)) {
-            return Sort.by(sortBy.getValue());
-        }
-        if (sortBy.equals(EventSort.VIEWS)) {
-            return Sort.by(sortBy.getValue());
-        }
-        return Sort.unsorted();
-    }
-
     public static Specification<Event> getSpecification(EventSearchParams params, boolean publicRequest) {
-        return  (root, query, criteriaBuilder) -> {
+        return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (params.getUserIds() != null) {

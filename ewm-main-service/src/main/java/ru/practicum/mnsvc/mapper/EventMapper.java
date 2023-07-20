@@ -37,19 +37,19 @@ public class EventMapper {
         return event;
     }
 
-    public static EventShortDto toEventShortDto(Event event) {
-        return EventShortDto.builder()
-                .annotation(event.getAnnotation())
-                .category(CategoryMapper.toDto(event.getCategory()))
-//                .confirmedRequests(event.getConfirmedRequests())
-                .eventDate(DateTimeMapper.toString(event.getEventDate()))
-                .id(event.getId())
-                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
-                .paid(event.getPaid())
-                .title(event.getTitle())
-//                .views(event.getViews())
-                .build();
-    }
+//    public static EventShortDto toEventShortDto(Event event) {
+//        return EventShortDto.builder()
+//                .annotation(event.getAnnotation())
+//                .category(CategoryMapper.toDto(event.getCategory()))
+////                .confirmedRequests(event.getConfirmedRequests())
+//                .eventDate(DateTimeMapper.toString(event.getEventDate()))
+//                .id(event.getId())
+//                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+//                .paid(event.getPaid())
+//                .title(event.getTitle())
+////                .views(event.getViews())
+//                .build();
+//    }
 
     public static EventShortDto toEventShortDto(Event event, Integer confirmedRequests, Long views) {
         return EventShortDto.builder()
@@ -65,41 +65,41 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDetailedDto toEventDetailedDto(Event event) {
-        EventState state = EventState.PENDING;
-        if (event.getState() == PublicationState.PUBLISHED) {
-            state = EventState.PUBLISHED;
-        }
-        if (event.getState() == PublicationState.CANCELED)
-            state = EventState.CANCELED;
-
-        return EventDetailedDto.builder()
-                .annotation(event.getAnnotation())
-                .category(CategoryMapper.toDto(event.getCategory()))
-//                .confirmedRequests(event.getConfirmedRequests())
-                .createdOn(DateTimeMapper.toString(event.getCreatedOn()))
-                .description(event.getDescription())
-                .eventDate(DateTimeMapper.toString(event.getEventDate()))
-                .id(event.getId())
-                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
-                .location(event.getLocation())
-                .paid(event.getPaid())
-                .participantLimit(event.getParticipantLimit())
-                .publishedOn(DateTimeMapper.toString(event.getPublishedOn()))
-                .requestModeration(event.getRequestModeration())
-                .state(state)
-                .title(event.getTitle())
-//                .views(event.getViews())
-                .build();
-    }
+//    public static EventDetailedDto toEventDetailedDto(Event event) {
+//        EventState state = EventState.PENDING;
+//        if (event.getState() == PublicationState.PUBLISHED) {
+//            state = EventState.PUBLISHED;
+//        }
+//        if (event.getState() == PublicationState.CANCELED)
+//            state = EventState.CANCELED;
+//
+//        return EventDetailedDto.builder()
+//                .annotation(event.getAnnotation())
+//                .category(CategoryMapper.toDto(event.getCategory()))
+////                .confirmedRequests(event.getConfirmedRequests())
+//                .createdOn(DateTimeMapper.toString(event.getCreatedOn()))
+//                .description(event.getDescription())
+//                .eventDate(DateTimeMapper.toString(event.getEventDate()))
+//                .id(event.getId())
+//                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+//                .location(event.getLocation())
+//                .paid(event.getPaid())
+//                .participantLimit(event.getParticipantLimit())
+//                .publishedOn(DateTimeMapper.toString(event.getPublishedOn()))
+//                .requestModeration(event.getRequestModeration())
+//                .state(state)
+//                .title(event.getTitle())
+////                .views(event.getViews())
+//                .build();
+//    }
 
     public static EventDetailedDto toEventDetailedDto(Event event, Integer confirmedRequests, Long views) {
-        EventState state = EventState.PENDING;
+        String state = String.valueOf(EventState.PENDING);
         if (event.getState() == PublicationState.PUBLISHED) {
-            state = EventState.PUBLISHED;
+            state = String.valueOf(EventState.PUBLISHED);
         }
         if (event.getState() == PublicationState.CANCELED)
-            state = EventState.CANCELED;
+            state = String.valueOf(EventState.CANCELED);
 
         EventDetailedDto dto = EventDetailedDto.builder()
                 .annotation(event.getAnnotation())

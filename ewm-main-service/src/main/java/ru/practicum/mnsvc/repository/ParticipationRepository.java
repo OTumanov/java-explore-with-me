@@ -20,10 +20,10 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
 
     Optional<Participation> findByRequesterIdAndId(Long requesterId, Long requestId);
 
-    @Query("select count(p) from participations as p where p.event.id = ?1 and p.state = ?2")
+    @Query("select count(p) from Participation as p where p.event.id = ?1 and p.state = ?2")
     Integer getConfirmedRequests(Long eventId, ParticipationState state);
 
     @Query("select new ru.practicum.ewm.client.dto.UtilDto(p.event.id, count(p)) " +
-            "from participations as p where p.event.id in ?1 and p.state = ?2 group by p.event.id")
+            "from Participation as p where p.event.id in ?1 and p.state = ?2 group by p.event.id")
     List<UtilDto> countParticipationByEventIds(List<Long> eventIds, ParticipationState state);
 }

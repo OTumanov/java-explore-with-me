@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "participations")
+@Entity
+@Table(name = "participations")
 public class Participation {
 
     public static final String EVENT_ID_COLUMN_NAME = "event_id";

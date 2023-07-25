@@ -1,7 +1,7 @@
 package ru.practicum.mnsvc.model;
 
 public enum EventSort {
-    EVENT_DATE("event_date"),
+    EVENT_DATE("eventDate"),
     VIEWS("views");
 
     private final String value;

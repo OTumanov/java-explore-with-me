@@ -36,10 +36,10 @@ import static ru.practicum.mnsvc.utils.Util.*;
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
-    private final ParticipationRepository participationRepo;
-    private final CompilationRepository compilationRepo;
-    private final CompEventsRepository compEventsRepo;
-    private final EventRepository eventRepo;
+    private final ParticipationRepository participationRepository;
+    private final CompilationRepository compilationRepository;
+    private final CompEventsRepository compEventsRepository;
+    private final EventRepository eventRepository;
     private final EventClient client = new EventClient("http://localhost/8080", new RestTemplateBuilder());
 
     @Override
@@ -47,9 +47,9 @@ public class CompilationServiceImpl implements CompilationService {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Compilation> compilations;
         if (pinned != null) {
-            compilations = compilationRepo.findAllByPinned(pinned, pageable);
+            compilations = compilationRepository.findAllByPinned(pinned, pageable);
         } else {
-            compilations = compilationRepo.findAll(pageable).toList();
+            compilations = compilationRepository.findAll(pageable).toList();
         }
 
         return compilations
@@ -62,7 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationResponseDto findById(Long compId) {
-        Compilation compilation = compilationRepo.findById(compId)
+        Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
 
         List<EventShortDto> eventDtos = getEventShortDtos(compilation);
@@ -72,9 +72,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationResponseDto addNewCompilation(CompilationPostDto dto) {
-        List<Event> events = eventRepo.findAll(dto.getEvents());
+        List<Event> events = eventRepository.findAll(dto.getEvents());
         Compilation compilation = CompilationMapper.toModel(dto, events);
-        compilation = compilationRepo.save(compilation);
+        compilation = compilationRepository.save(compilation);
 
         List<EventShortDto> eventDtos = getEventShortDtoList(events);
         return CompilationMapper.toResponseDto(compilation, eventDtos);
@@ -83,32 +83,32 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void deleteCompilation(Long compId) {
-        compilationRepo.deleteById(compId);
+        compilationRepository.deleteById(compId);
     }
 
     @Override
     @Transactional
     public void deleteEventFromCompilation(Long compId, Long eventId) {
-        compilationRepo
+        compilationRepository
                 .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
-        eventRepo.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
-        compEventsRepo.deleteByCompilationIdAndEventId(compId, eventId);
+        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+        compEventsRepository.deleteByCompilationIdAndEventId(compId, eventId);
     }
 
     @Override
     @Transactional
     public void addEventToCompilation(Long compId, Long eventId) {
-        compilationRepo
+        compilationRepository
                 .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
-        eventRepo.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
         CompEvent compEvent = new CompEvent(compId, eventId);
-        compEventsRepo.save(compEvent);
+        compEventsRepository.save(compEvent);
     }
 
     @Override
     @Transactional
     public void unpinCompilation(Long compId) {
-        Compilation compilation = compilationRepo
+        Compilation compilation = compilationRepository
                 .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
         compilation.setPinned(false);
     }
@@ -116,7 +116,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void pinCompilation(Long compId) {
-        Compilation compilation = compilationRepo
+        Compilation compilation = compilationRepository
                 .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
         compilation.setPinned(true);
     }
@@ -127,7 +127,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private List<EventShortDto> getEventShortDtoList(List<Event> events) {
         List<Long> eventIds = getEventIdsList(events);
-        List<UtilDto> confirmedReqEventIdRelations = participationRepo
+        List<UtilDto> confirmedReqEventIdRelations = participationRepository
                 .countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
         List<UtilDto> viewsEventIdRelations = client.getViewsByEventIds(eventIds);
         return events.stream()

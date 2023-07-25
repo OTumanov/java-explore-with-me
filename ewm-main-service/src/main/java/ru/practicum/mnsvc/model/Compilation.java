@@ -10,7 +10,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "compilations")
+@Entity
+@Table(name = "compilations")
 public class Compilation {
     @Id
     @Column(name = "compilation_id")

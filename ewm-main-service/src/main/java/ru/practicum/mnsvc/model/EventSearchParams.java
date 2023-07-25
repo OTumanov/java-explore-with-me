@@ -23,6 +23,7 @@ public class EventSearchParams {
     private Integer size;
     private EventSort sort;
 
+    //EventAdminController
     public EventSearchParams(List<Long> usersIds,
                              List<String> states,
                              List<Long> categories,
@@ -45,6 +46,8 @@ public class EventSearchParams {
         this.size = size;
     }
 
+
+    //EventPublicController
     public EventSearchParams(String text,
                              List<Long> categories,
                              Boolean paid,

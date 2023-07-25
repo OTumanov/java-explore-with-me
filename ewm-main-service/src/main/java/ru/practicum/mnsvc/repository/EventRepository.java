@@ -9,7 +9,6 @@ import ru.practicum.mnsvc.model.Event;
 import java.util.List;
 import java.util.Optional;
 
-//public interface EventRepository extends JpaRepository<Event, Long> {
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
     List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
@@ -19,4 +18,15 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     @Query("select e from Event as e where e.id in ?1")
     List<Event> findAll(List<Long> ids);
+
+
+    //    @Query("select e from events e where upper(e.description) like upper(concat('%', ?1, '%')) or upper(e.annotation) like upper(concat('%', ?1, '%'))")
+//    @Query("select e from Event e " +
+//            "where upper(e.description) like upper(concat('%', ?1, '%')) " +
+//            "or upper(e.annotation) like upper(concat('%', ?1, '%'))" +
+//            "order by ?3")
+//    @Query("select e from Event e " +
+//            "where upper(e.description) like upper(concat('%', ?1, '%')) " +
+//            "or upper(e.annotation) like upper(concat('%', ?1, '%')) ")
+//    Page<Event> findAllByText(String text, Pageable pageable);
 }

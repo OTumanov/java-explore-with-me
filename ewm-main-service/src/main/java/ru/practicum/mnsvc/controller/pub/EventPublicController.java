@@ -47,8 +47,6 @@ public class EventPublicController {
                 size
         );
 
-        System.out.println(criteria);
-
         return eventService.getEvents(criteria, clientIp, endpoint);
     }
 

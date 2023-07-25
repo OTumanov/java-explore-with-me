@@ -28,12 +28,8 @@ public class EventAdminController {
                                                          @RequestParam(required = false) List<Long> categories,
                                                          @RequestParam(required = false) String rangeStart,
                                                          @RequestParam(required = false) String rangeEnd,
-                                                         @PositiveOrZero
-                                                         @RequestParam(required = false, defaultValue = "0")
-                                                         Integer from,
-                                                         @Positive
-                                                         @RequestParam(required = false, defaultValue = "10")
-                                                         Integer size) {
+                                                         @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                         @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
         EventSearchParams searchParams = new EventSearchParams(
                 userIds,
                 states,

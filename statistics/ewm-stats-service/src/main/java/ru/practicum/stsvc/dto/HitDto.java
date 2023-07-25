@@ -1,24 +1,26 @@
 package ru.practicum.stsvc.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import lombok.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
-@ToString
-@Builder
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class HitDto {
     private Long id;
+    @NotBlank
     private String app;
+    @NotBlank
     private String uri;
+    @NotBlank
     private String ip;
     private String timeStamp;
-
-    public HitDto(String app, String uri, String ip, String timeStamp) {
-        this.app = app;
-        this.uri = uri;
-        this.ip = ip;
-        this.timeStamp = timeStamp;
-    }
+    @NotNull
+    private Long eventId;
 }

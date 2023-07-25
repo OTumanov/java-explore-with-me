@@ -13,7 +13,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>ewm-stats-service</module>
-<!--        <module>shared-dto</module>-->
         <module>client</module>
     </modules>
 </project>

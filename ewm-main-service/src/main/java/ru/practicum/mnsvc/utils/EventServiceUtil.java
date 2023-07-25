@@ -8,7 +8,6 @@ import ru.practicum.mnsvc.mapper.DateTimeMapper;
 import ru.practicum.mnsvc.model.Event;
 import ru.practicum.mnsvc.model.EventSearchParams;
 import ru.practicum.mnsvc.model.EventSort;
-import ru.practicum.mnsvc.model.PublicationState;
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
@@ -37,16 +36,17 @@ public class EventServiceUtil {
 
             if (params.getUserIds() != null) {
                 for (Long userId : params.getUserIds()) {
+                    System.out.println(userId);
                     predicates.add(criteriaBuilder.in(root.get("initiator").get("id")).value(userId));
                 }
             }
-            if (publicRequest) {
-                predicates.add(criteriaBuilder.equal(root.get("state"), PublicationState.PUBLISHED));
-            } else if (null != params.getStates()) {
-                for (PublicationState state : params.getStates()) {
-                    predicates.add(criteriaBuilder.in(root.get("state")).value(state));
-                }
-            }
+//            if (publicRequest) {
+//                predicates.add(criteriaBuilder.equal(root.get("state"), PublicationState.PUBLISHED));
+//            } else if (null != params.getStates()) {
+//                for (PublicationState state : params.getStates()) {
+//                    predicates.add(criteriaBuilder.in(root.get("state")).value(state));
+//                }
+//            }
             if (null != params.getText()) {
                 criteriaBuilder.or(
                         criteriaBuilder.like(root.get("annotation"), "%" + params.getText() + "%"),

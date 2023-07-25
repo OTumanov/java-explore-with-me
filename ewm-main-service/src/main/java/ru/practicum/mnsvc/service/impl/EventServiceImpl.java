@@ -14,6 +14,7 @@ import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
@@ -48,6 +49,13 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public List<EventShortDto> getEvents(EventSearchParams params, String clientIp, String endpoint) {
+
+        if (params.getRangeStart() != null && params.getRangeEnd() != null) {
+            if (params.getRangeEnd().isBefore(params.getRangeStart())) {
+                throw new IllegalArgumentException("Время окончания события не может быть перед стартовым!");
+            }
+        }
+
         Sort sort = Sort.unsorted();
 
         if (params.getSort() != null) {
@@ -72,9 +80,12 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDetailedDto findEventById(Long id, String clientIp, String endpoint) {
-        Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(id)));
+        Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого события!"));
+//        addHit(endpoint, clientIp, id, client);
 
-        addHit(endpoint, clientIp, id, client);
+        if(!event.getState().equals(PublicationState.PUBLISHED)){
+            throw new NotFoundException("Событие должно быть опубликовано!");
+        }
 
         return EventMapper.toEventDetailedDto(event,
                 participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED),
@@ -115,6 +126,23 @@ public class EventServiceImpl implements EventService {
         if (!isEventDateOk(dto.getEventDate())) {
             throw new ForbiddenException("Событие не может наступить ранее двух часов от текущего времени!");
         }
+
+        if (dto.getDescription() == null || dto.getDescription().isEmpty() || dto.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Описание не может быть пустым!");
+        }
+
+        if (dto.getDescription().length() < 20 || dto.getDescription().length() > 7000) {
+            throw new IllegalArgumentException("Описание не может быть короче 20 символов и не более 7000!");
+        }
+
+        if (dto.getAnnotation() == null || dto.getAnnotation().isEmpty() || dto.getAnnotation().isBlank()) {
+            throw new IllegalArgumentException("Аннотация не может быть пустой!");
+        }
+
+        if (dto.getAnnotation().length() < 20 || dto.getAnnotation().length() > 2000) {
+            throw new IllegalArgumentException("Аннотация не может быть короче 20 символов и не более 2000!");
+        }
+
         User initiator = userRepository
                 .findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
         Category category = categoryRepository.findById(dto.getCategory())
@@ -140,15 +168,19 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId) {
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+    public EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
 
-        if (!event.getState().equals(PublicationState.PENDING)) {
-            throw new ForbiddenException("the event can only be canceled in the waiting state, current state: "
-                    + event.getState());
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
+
+        if (!event.getState().equals(PublicationState.CANCELED)) {
+            throw new ForbiddenException("Событие не может быть изменено! " +
+                    "Изменить можно только отмененное событие или находящееся на модерации. Сейчас же статус у этого события:" + event.getState());
         }
-        event.setState(PublicationState.CANCELED);
+
+        if (dto.getStateAction().equals(UpdateEventUserState.SEND_TO_REVIEW)) {
+            event.setState(PublicationState.PENDING);
+        }
+
         event = eventRepository.save(event);
         Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(event.getId()).getBody();
@@ -165,7 +197,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public ParticipationDto confirmParticipation(Long userId, Long eventId, Long reqId) {
+    public ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
 
@@ -177,17 +209,20 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenException("the limit of participants in the event has been reached");
         }
 
-        Participation participation = participationRepository.findById(reqId)
-                .orElseThrow(() -> new NotFoundException(Util.getParticipationNotFoundMessage(reqId)));
+        for(Integer pId  : dto.getRequestIds()) {
 
-        if (participation.getState().equals(ParticipationState.CONFIRMED)) {
-            throw new ForbiddenException("the request for participation has already been confirmed");
+            Participation participation = participationRepository.findById(Long.valueOf(pId)).orElseThrow(() -> new NotFoundException("Нет такого!"));
+
+            if (participation.getState().equals(ParticipationState.CONFIRMED)) {
+                throw new ForbiddenException("the request for participation has already been confirmed");
+            }
+
+            participation.setState(ParticipationState.CONFIRMED);
+            checkParticipationLimit(event, participationRepository);
+            participation = participationRepository.save(participation);
+            return ParticipationMapper.toDto(participation);
         }
-
-        participation.setState(ParticipationState.CONFIRMED);
-        checkParticipationLimit(event, participationRepository);
-        participation = participationRepository.save(participation);
-        return ParticipationMapper.toDto(participation);
+        return null;
     }
 
     @Override

@@ -11,12 +11,8 @@ import ru.practicum.mnsvc.model.StateAction;
 @Builder
 @AllArgsConstructor
 public class EventPostDto {
-
-    @Length(min = 20, max = 2000)
     private String annotation;
     private Long category;
-
-    @Length(min = 20, max = 7000)
     private String description;
     private String eventDate;
     private Location location;

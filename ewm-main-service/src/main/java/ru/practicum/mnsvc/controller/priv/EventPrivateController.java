@@ -8,6 +8,7 @@ import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.service.EventService;
 import ru.practicum.mnsvc.utils.PatchValidMarker;
@@ -62,26 +63,35 @@ public class EventPrivateController {
         return eventService.patchEvent(userId, dto);
     }
 
-    @PatchMapping("/{eventId}/requests/{reqId}/confirm")
+    @PatchMapping("/{eventId}/requests")
     public ParticipationDto confirmParticipation(@Positive @PathVariable Long userId,
                                                  @Positive @PathVariable Long eventId,
-                                                 @Positive @PathVariable Long reqId) {
-        log.info("Подтвердить запрос на участие от пользователя id:{}, событие id:{}, запрос id:{}", userId, eventId, reqId);
-        return eventService.confirmParticipation(userId, eventId, reqId);
+                                                 @RequestBody EventRequestStatusUpdateDto dto) {
+        log.info("Подтвердить запрос на участие от пользователя id:{}, событие id:{}, запрос id:{}", userId, eventId, dto);
+        return eventService.confirmParticipation(userId, eventId, dto);
     }
 
-    @PatchMapping("/{eventId}/requests/{reqId}/reject")
-    public ParticipationDto rejectParticipation(@Positive @PathVariable Long userId,
-                                                @Positive @PathVariable Long eventId,
-                                                @Positive @PathVariable Long reqId) {
-        log.info("Отклонить запрос на участие от пользователя id:{}, событие id:{}, запрос id:{}", userId, eventId, reqId);
-        return eventService.rejectParticipation(userId, eventId, reqId);
-    }
+//    @PatchMapping("/{eventId}/requests/{reqId}/confirm")
+//    public ParticipationDto confirmParticipation(@Positive @PathVariable Long userId,
+//                                                 @Positive @PathVariable Long eventId,
+//                                                 @Positive @PathVariable Long reqId) {
+//        log.info("Подтвердить запрос на участие от пользователя id:{}, событие id:{}, запрос id:{}", userId, eventId, reqId);
+//        return eventService.confirmParticipation(userId, eventId, reqId);
+//    }
+
+//    @PatchMapping("/{eventId}/requests/{reqId}/reject")
+//    public ParticipationDto rejectParticipation(@Positive @PathVariable Long userId,
+//                                                @Positive @PathVariable Long eventId,
+//                                                @Positive @PathVariable Long reqId) {
+//        log.info("Отклонить запрос на участие от пользователя id:{}, событие id:{}, запрос id:{}", userId, eventId, reqId);
+//        return eventService.rejectParticipation(userId, eventId, reqId);
+//    }
 
     @PatchMapping("/{eventId}")
     public EventDetailedDto canselEventByIdAndOwnerId(@Positive @PathVariable Long userId,
-                                                      @Positive @PathVariable Long eventId) {
+                                                      @Positive @PathVariable Long eventId,
+                                                      @RequestBody EventPatchDto dto) {
         log.info("Отменить событие id:{} от пользователя id:{}", eventId, userId);
-        return eventService.cancelEventByIdAndOwnerId(userId, eventId);
+        return eventService.cancelEventByIdAndOwnerId(userId, eventId, dto);
     }
 }

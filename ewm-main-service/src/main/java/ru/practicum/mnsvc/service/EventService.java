@@ -4,6 +4,7 @@ import ru.practicum.mnsvc.dto.events.EventDetailedDto;
 import ru.practicum.mnsvc.dto.events.EventPatchDto;
 import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.model.EventSearchParams;
 
@@ -22,11 +23,11 @@ public interface EventService {
 
     EventDetailedDto findEventByIdAndOwnerId(Long userId, Long eventId);
 
-    EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId);
+    EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto);
 
     List<ParticipationDto> getInfoAboutEventParticipation(Long userId, Long eventId);
 
-    ParticipationDto confirmParticipation(Long userId, Long eventId, Long reqId);
+    ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto);
 
     ParticipationDto rejectParticipation(Long userId, Long eventId, Long reqId);
 

@@ -23,7 +23,7 @@ public class EventAdminController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventDetailedDto> findEventsByConditions(@RequestParam(required = false) List<Long> userIds,
+    public List<EventDetailedDto> findEventsByConditions(@RequestParam(required = false) List<Long> users,
                                                          @RequestParam(required = false) List<String> states,
                                                          @RequestParam(required = false) List<Long> categories,
                                                          @RequestParam(required = false) String rangeStart,
@@ -31,7 +31,7 @@ public class EventAdminController {
                                                          @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
                                                          @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
         EventSearchParams searchParams = new EventSearchParams(
-                userIds,
+                users,
                 states,
                 categories,
                 rangeStart,
@@ -39,7 +39,7 @@ public class EventAdminController {
                 from,
                 size
         );
-        log.info("find event by conditions {}", searchParams);
+        log.info("Поиск по параметрам {}", searchParams);
         return eventService.findEventsByConditions(searchParams);
     }
 

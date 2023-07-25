@@ -24,14 +24,18 @@ public class Participation {
     @Column(name = ID_COLUMN_NAME)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = CREATED_COLUMN_NAME, nullable = false)
     private LocalDateTime created;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = EVENT_ID_COLUMN_NAME, nullable = false)
     private Event event;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = REQUESTER_ID_COLUMN_NAME, nullable = false)
     private User requester;
+
     @Enumerated(EnumType.STRING)
     @Column(name = STATE_COLUMN_NAME, nullable = false)
     private ParticipationState state;

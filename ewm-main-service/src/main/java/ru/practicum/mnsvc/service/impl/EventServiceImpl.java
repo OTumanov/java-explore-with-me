@@ -102,9 +102,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto patchEvent(Long userId, EventPatchDto dto) {
-        checkUser(userId);
-        Event event = checkEvent(dto.getEventId());
+    public EventDetailedDto patchEvent(Long userId, Long eventId, EventPatchDto dto) {
+        Event event = checkEvent(eventId, userId);
 
         if (event.getState().equals(PublicationState.PUBLISHED)) {
             throw new ForbiddenException("Only pending or canceled events can be changed");
@@ -127,26 +126,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Событие не может наступить ранее двух часов от текущего времени!");
         }
 
-        if (dto.getDescription() == null || dto.getDescription().isEmpty() || dto.getDescription().isBlank()) {
-            throw new IllegalArgumentException("Описание не может быть пустым!");
-        }
-
-        if (dto.getDescription().length() < 20 || dto.getDescription().length() > 7000) {
-            throw new IllegalArgumentException("Описание не может быть короче 20 символов и не более 7000!");
-        }
-
-        if (dto.getAnnotation() == null || dto.getAnnotation().isEmpty() || dto.getAnnotation().isBlank()) {
-            throw new IllegalArgumentException("Аннотация не может быть пустой!");
-        }
-
-        if (dto.getAnnotation().length() < 20 || dto.getAnnotation().length() > 2000) {
-            throw new IllegalArgumentException("Аннотация не может быть короче 20 символов и не более 2000!");
-        }
-
-        User initiator = userRepository
-                .findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
-        Category category = categoryRepository.findById(dto.getCategory())
-                .orElseThrow(() -> new NotFoundException(Util.getCategoryNotFoundMessage(dto.getCategory())));
+        User initiator = checkUser(userId);
+        Category category = checkCategory(dto.getCategory());
 
         Event event = EventMapper.toModel(dto, initiator, category);
         Location location = locationRepository.save(event.getLocation());
@@ -168,11 +149,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
+    public EventDetailedDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
 
         Event event = checkEvent(eventId, userId);
 
-        if (!event.getState().equals(PublicationState.CANCELED)) {
+        if (!event.getState().equals(PublicationState.CANCELED) || !event.getRequestModeration()) {
             throw new IllegalArgumentException("Событие не может быть изменено! " +
                     "Изменить можно только отмененное событие или находящееся на модерации. Сейчас же статус у этого события:" + event.getState());
         }
@@ -304,9 +285,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDetailedDto publishEvent(Long eventId, EventPostDto dto, String clientIp, String endpoint) {
-
         if (dto.getStateAction() == StateAction.PUBLISH_EVENT) {
-
             Event event = checkEvent(eventId);
 
             if (!event.getEventDate().isAfter(LocalDateTime.now().plusHours(1))) {
@@ -333,8 +312,15 @@ public class EventServiceImpl implements EventService {
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = client.getViewsByEventId(event.getId()).getBody();
             return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
-        } else if (dto.getEventDate() != null) {
-            throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
+        } else if (DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
+        } else if (dto.getStateAction() == null) {
+            Event event = checkEvent(eventId);
+            updateEvent(event, dto, categoryRepository);
+            event = eventRepository.save(event);
+            Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+            Long views = client.getViewsByEventId(event.getId()).getBody();
+            return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
         } else {
             throw new ForbiddenException("Недопустимые входные данные");
         }
@@ -375,6 +361,36 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private void updateEvent(Event event, EventPostDto update, CategoryRepository categoryRepo) {
+        if (update.getAnnotation() != null) {
+            event.setAnnotation(update.getAnnotation());
+        }
+        if (update.getCategory() != null) {
+            Category category = categoryRepo.findById((update.getCategory()))
+                    .orElseThrow(() -> new NotFoundException(Util.getCategoryNotFoundMessage(update.getCategory())));
+            event.setCategory(category);
+        }
+        if (update.getDescription() != null) {
+            event.setDescription(update.getDescription());
+        }
+        if (update.getEventDate() != null) {
+            if (!isEventDateOk(update.getEventDate())) {
+                throw new ForbiddenException("the event can be changed no later than 2 hours before the start");
+            }
+            event.setEventDate(DateTimeMapper.toDateTime(update.getEventDate()));
+        }
+        if (update.getPaid() != null) {
+            event.setPaid(update.getPaid());
+        }
+        if (update.getParticipantLimit() != null) {
+            event.setParticipantLimit(update.getParticipantLimit());
+        }
+        if (update.getTitle() != null) {
+            event.setTitle(update.getTitle());
+        }
+    }
+
+
     private void checkParticipationLimit(Event event, ParticipationRepository participationRepo) {
         if (event.getParticipantLimit().equals(participationRepo
                 .getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED))) {
@@ -414,5 +430,9 @@ public class EventServiceImpl implements EventService {
     private User checkUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Нет такого пользователя!"));
+    }
+
+    private Category checkCategory(Long catId){
+        return categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Нет такой категории"));
     }
 }

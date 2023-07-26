@@ -53,13 +53,13 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     public EventDetailedDto publishEvent(@Positive @PathVariable Long eventId,
-                                        @RequestBody EventPostDto dto,
+                                        @Validated @RequestBody EventPostDto dto,
                                         HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         log.info("Подключение с ip-адреса: {}", clientIp);
         log.info("Подключение к эндпоинту: http://localhost:8080{}", endpoint);
-        log.info("Опубликовать событие id: {}. Получен статус: {}", eventId, dto.getStateAction());
+        log.info("Изменить событие id: {}. Получен запрос: {}", eventId, dto);
         return eventService.publishEvent(eventId, dto, clientIp, endpoint);
     }
 }

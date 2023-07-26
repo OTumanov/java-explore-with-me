@@ -2,6 +2,8 @@ package ru.practicum.mnsvc.controller.priv;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.events.EventDetailedDto;
@@ -11,9 +13,7 @@ import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.service.EventService;
-import ru.practicum.mnsvc.utils.PatchValidMarker;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -50,18 +50,18 @@ public class EventPrivateController {
     }
 
     @PostMapping("/events")
-    public EventDetailedDto postEvent(@Positive @PathVariable Long userId,
-                                      @Valid @RequestBody EventPostDto dto) {
+    public ResponseEntity<EventDetailedDto> postEvent(@Positive @PathVariable Long userId,
+                                                      @Validated @RequestBody EventPostDto dto) {
         log.info("Добавить событие от пользователя id:{} с данными:{}", userId, dto);
-        return eventService.postEvent(userId, dto);
+        return new ResponseEntity<>(eventService.postEvent(userId, dto), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/events")
-    public EventDetailedDto patchEvent(@Positive @PathVariable Long userId,
-                                       @Validated({PatchValidMarker.class}) @RequestBody EventPatchDto dto) {
-        log.info("Изменить событие id:{} от пользователя id:{}", dto, userId);
-        return eventService.patchEvent(userId, dto);
-    }
+//    @PatchMapping("/events")
+//    public EventDetailedDto patchEvent(@Positive @PathVariable Long userId,
+//                                       @Validated @RequestBody EventPatchDto dto) {
+//        log.info("Изменить событие id:{} от пользователя id:{}", dto, userId);
+//        return eventService.patchEvent(userId, dto);
+//    }
 
     @PatchMapping("/events/{eventId}/requests")
     public ParticipationDto confirmParticipation(@Positive @PathVariable Long userId,
@@ -88,10 +88,10 @@ public class EventPrivateController {
 //    }
 
     @PatchMapping("/events/{eventId}")
-    public EventDetailedDto canselEventByIdAndOwnerId(@Positive @PathVariable Long userId,
-                                                      @Positive @PathVariable Long eventId,
-                                                      @RequestBody EventPatchDto dto) {
-        log.info("Отменить событие id:{} от пользователя id:{}", eventId, userId);
-        return eventService.cancelEventByIdAndOwnerId(userId, eventId, dto);
+    public EventDetailedDto patchEvent(@Positive @PathVariable Long userId,
+                                       @Positive @PathVariable Long eventId,
+                                       @Validated @RequestBody EventPatchDto dto) {
+        log.info("Изменить событие id:{} от пользователя id:{}", eventId, userId);
+        return eventService.patchEvent(userId, eventId, dto);
     }
 }

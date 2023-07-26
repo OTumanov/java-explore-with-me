@@ -17,13 +17,13 @@ public interface EventService {
 
     List<EventShortDto> findEventsByInitiatorId(Long userId, Integer from, Integer size);
 
-    EventDetailedDto patchEvent(Long userId, EventPatchDto dto);
+    EventDetailedDto patchEvent(Long userId, Long eventId, EventPatchDto dto);
 
     EventDetailedDto postEvent(Long userId, EventPostDto dto);
 
     EventDetailedDto findEventByIdAndOwnerId(Long userId, Long eventId);
 
-    EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto);
+    EventDetailedDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto);
 
     List<ParticipationDto> getInfoAboutEventParticipation(Long userId, Long eventId);
 

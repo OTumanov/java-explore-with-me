@@ -26,19 +26,19 @@ public class UserAdminController {
     public List<UserDto> findUsers(@RequestParam List<Long> ids,
                                    @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                    @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получить список пользователей: {}", ids);
+        log.info("Получение информации о пользователях - {}", ids);
         return userService.findUsers(ids, from, size);
     }
 
     @PostMapping
-    public UserDto postUser(@Validated({CommonValidMarker.class}) @RequestBody NewUserDto dto) {
-        log.info("Добавить пользователя: {}", dto);
+    public UserDto postUser(@Validated @RequestBody NewUserDto dto) {
+        log.info("Добавление нового пользователя {}", dto);
         return userService.postUser(dto);
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@Positive @PathVariable Long userId) {
-        log.info("Удалить пользователя id: {}", userId);
+        log.info("Удаление пользователя {}", userId);
         userService.deleteUser(userId);
     }
 }

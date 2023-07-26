@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.EventClient;
 import ru.practicum.ewm.client.dto.UtilDto;
-import ru.practicum.mnsvc.dto.compile.CompilationDto;
-import ru.practicum.mnsvc.dto.compile.CompilationPostDto;
-import ru.practicum.mnsvc.dto.compile.CompilationResponseDto;
+import ru.practicum.mnsvc.dto.compile.*;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.CompilationMapper;
@@ -71,6 +69,11 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    public CompilationDto addNewCompilation(NewCompilationDto dto) {
+        return null;
+    }
+
+    @Override
     @Transactional
     public CompilationResponseDto addNewCompilation(CompilationPostDto dto) {
         List<Event> events = eventRepository.findAll(dto.getEvents());
@@ -85,6 +88,11 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public void deleteCompilation(Long compId) {
         compilationRepository.deleteById(compId);
+    }
+
+    @Override
+    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
+        return null;
     }
 
     @Override

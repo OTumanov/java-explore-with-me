@@ -1,30 +1,22 @@
 package ru.practicum.mnsvc.dto.users;
 
-import lombok.*;
-import ru.practicum.mnsvc.utils.CommonValidMarker;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class NewUserDto {
 
-    @Email(groups = CommonValidMarker.class)
-    @NotNull(groups = CommonValidMarker.class)
+    @NotNull
     private String email;
 
-    @NotBlank(groups = CommonValidMarker.class)
+    @NotBlank
     private String name;
-
-    @Override
-    public String toString() {
-        return "NewUserDto{" +
-                "email='" + email + '\'' +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

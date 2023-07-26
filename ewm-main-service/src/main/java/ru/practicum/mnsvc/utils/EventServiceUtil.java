@@ -39,13 +39,6 @@ public class EventServiceUtil {
                     predicates.add(criteriaBuilder.in(root.get("initiator").get("id")).value(userId));
                 }
             }
-//            if (publicRequest) {
-//                predicates.add(criteriaBuilder.equal(root.get("state"), PublicationState.PUBLISHED));
-//            } else if (null != params.getStates()) {
-//                for (PublicationState state : params.getStates()) {
-//                    predicates.add(criteriaBuilder.in(root.get("state")).value(state));
-//                }
-//            }
             if (null != params.getText()) {
                 criteriaBuilder.or(
                         criteriaBuilder.like(root.get("annotation"), "%" + params.getText() + "%"),

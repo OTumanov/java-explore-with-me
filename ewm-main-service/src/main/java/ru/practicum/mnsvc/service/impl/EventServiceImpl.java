@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.EventClient;
 import ru.practicum.ewm.client.dto.UtilDto;
-import ru.practicum.mnsvc.dto.events.EventDetailedDto;
-import ru.practicum.mnsvc.dto.events.EventPatchDto;
-import ru.practicum.mnsvc.dto.events.EventPostDto;
-import ru.practicum.mnsvc.dto.events.EventShortDto;
+import ru.practicum.mnsvc.dto.events.*;
 import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
@@ -80,7 +77,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto findEventById(Long id, String clientIp, String endpoint) {
+    public EventFullDto findEventById(Long id, String clientIp, String endpoint) {
         Event event = checkEvent(id);
         addHit(endpoint, clientIp, id, client);
 
@@ -102,7 +99,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto patchEvent(Long userId, Long eventId, EventPatchDto dto) {
+    public EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest dto) {
         Event event = checkEvent(eventId, userId);
 
         if (event.getState().equals(PublicationState.PUBLISHED)) {
@@ -121,7 +118,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto postEvent(Long userId, EventPostDto dto) {
+    public EventFullDto postEvent(Long userId, NewEventDto dto) {
         if (!isEventDateOk(dto.getEventDate())) {
             throw new IllegalArgumentException("Событие не может наступить ранее двух часов от текущего времени!");
         }
@@ -139,7 +136,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDetailedDto findEventByIdAndOwnerId(Long userId, Long eventId) {
+    public EventFullDto findEventByIdAndOwnerId(Long userId, Long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId,
                 userId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
         Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
@@ -149,7 +146,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
+    public EventFullDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
 
         Event event = checkEvent(eventId, userId);
 
@@ -223,7 +220,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDetailedDto> findEventsByConditions(EventSearchParams params) {
+    public List<EventFullDto> findEventsByConditions(EventSearchParams params) {
         Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
         Specification<Event> specification = getSpecification(params, false);
         List<Event> events = eventRepository.findAll(specification, pageable).toList();
@@ -242,7 +239,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto editEvent(Long eventId, EventPostDto dto) {
+    public EventFullDto editEvent(Long eventId, UpdateEventAdminRequest dto) {
         Event editable = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
 
@@ -284,7 +281,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto publishEvent(Long eventId, EventPostDto dto, String clientIp, String endpoint) {
+    public EventFullDto publishEvent(Long eventId, UpdateEventAdminRequest dto, String clientIp, String endpoint) {
         if (dto.getStateAction() == StateAction.PUBLISH_EVENT) {
             Event event = checkEvent(eventId);
 
@@ -361,7 +358,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void updateEvent(Event event, EventPostDto update, CategoryRepository categoryRepo) {
+    private void updateEvent(Event event, UpdateEventAdminRequest update, CategoryRepository categoryRepo) {
         if (update.getAnnotation() != null) {
             event.setAnnotation(update.getAnnotation());
         }

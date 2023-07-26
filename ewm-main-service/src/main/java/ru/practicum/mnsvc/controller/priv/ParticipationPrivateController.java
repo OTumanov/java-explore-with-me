@@ -23,7 +23,7 @@ public class ParticipationPrivateController {
 
     @GetMapping
     public List<ParticipationDto> getInfoAboutAllParticipation(@Positive @PathVariable Long userId) {
-        log.info("Получить информацию о всех запросах на участие от пользователя id:{}", userId);
+        log.info("Получение информации о заявках текущего пользователя {} на участие в чужих событиях", userId);
         return participationService.getInfoAboutAllParticipation(userId);
     }
 

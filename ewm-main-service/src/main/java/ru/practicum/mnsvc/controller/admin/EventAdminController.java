@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.mnsvc.dto.events.EventDetailedDto;
-import ru.practicum.mnsvc.dto.events.EventPostDto;
+import ru.practicum.mnsvc.dto.events.EventFullDto;
+import ru.practicum.mnsvc.dto.events.UpdateEventAdminRequest;
 import ru.practicum.mnsvc.model.EventSearchParams;
 import ru.practicum.mnsvc.service.EventService;
 
@@ -24,13 +24,13 @@ public class EventAdminController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventDetailedDto> findEventsByConditions(@RequestParam(required = false) List<Long> users,
-                                                         @RequestParam(required = false) List<String> states,
-                                                         @RequestParam(required = false) List<Long> categories,
-                                                         @RequestParam(required = false) String rangeStart,
-                                                         @RequestParam(required = false) String rangeEnd,
-                                                         @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                         @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
+    public List<EventFullDto> findEventsByConditions(@RequestParam(required = false) List<Long> users,
+                                                     @RequestParam(required = false) List<String> states,
+                                                     @RequestParam(required = false) List<Long> categories,
+                                                     @RequestParam(required = false) String rangeStart,
+                                                     @RequestParam(required = false) String rangeEnd,
+                                                     @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                     @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
         EventSearchParams searchParams = new EventSearchParams(
                 users,
                 states,
@@ -40,26 +40,19 @@ public class EventAdminController {
                 from,
                 size
         );
-        log.info("Поиск по параметрам {}", searchParams);
+        log.info("Поиск событий - {}", searchParams);
         return eventService.findEventsByConditions(searchParams);
     }
 
-    @PutMapping("/{eventId}")
-    public EventDetailedDto editEvent(@Positive @PathVariable Long eventId,
-                                      @RequestBody EventPostDto dto) {
-        log.info("Редактировать событие id:{}, {}", eventId, dto);
-        return eventService.editEvent(eventId, dto);
-    }
-
     @PatchMapping("/{eventId}")
-    public EventDetailedDto publishEvent(@Positive @PathVariable Long eventId,
-                                        @Validated @RequestBody EventPostDto dto,
-                                        HttpServletRequest request) {
+    public EventFullDto publishEvent(@Positive @PathVariable Long eventId,
+                                     @Validated @RequestBody UpdateEventAdminRequest dto,
+                                     HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         log.info("Подключение с ip-адреса: {}", clientIp);
         log.info("Подключение к эндпоинту: http://localhost:8080{}", endpoint);
-        log.info("Изменить событие id: {}. Получен запрос: {}", eventId, dto);
+        log.info("Редактирование данных события {} и его статуса (отклонение/публикация) - {}", eventId, dto);
         return eventService.publishEvent(eventId, dto, clientIp, endpoint);
     }
 }

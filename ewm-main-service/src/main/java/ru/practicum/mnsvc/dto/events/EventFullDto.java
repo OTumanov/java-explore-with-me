@@ -10,7 +10,7 @@ import ru.practicum.mnsvc.model.Location;
 @ToString
 @Builder
 @AllArgsConstructor
-public class EventDetailedDto {
+public class EventFullDto {
     private String annotation;
     private CategoryDto category;
     private Integer confirmedRequests;

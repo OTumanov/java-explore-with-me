@@ -13,13 +13,4 @@ public class CompilationPostDto {
     private List<Long> events;
     private Boolean pinned;
     private String title;
-
-//    @Override
-//    public String toString() {
-//        return "CompilationPostDto{" +
-//                "events=" + events +
-//                ", pinned=" + pinned +
-//                ", title='" + title + '\'' +
-//                '}';
-//    }
 }

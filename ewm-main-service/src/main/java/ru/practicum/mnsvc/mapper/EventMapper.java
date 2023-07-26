@@ -1,7 +1,7 @@
 package ru.practicum.mnsvc.mapper;
 
-import ru.practicum.mnsvc.dto.events.EventDetailedDto;
-import ru.practicum.mnsvc.dto.events.EventPostDto;
+import ru.practicum.mnsvc.dto.events.EventFullDto;
+import ru.practicum.mnsvc.dto.events.UpdateEventAdminRequest;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.*;
@@ -16,7 +16,7 @@ public class EventMapper {
     private EventMapper() {
     }
 
-    public static Event toModel(EventPostDto dto, User initiator, Category category) {
+    public static Event toModel(UpdateEventAdminRequest dto, User initiator, Category category) {
         Event event = Event.builder()
                 .annotation(dto.getAnnotation())
                 .category(category)
@@ -51,7 +51,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDetailedDto toEventDetailedDto(Event event, Integer confirmedRequests, Long views) {
+    public static EventFullDto toEventDetailedDto(Event event, Integer confirmedRequests, Long views) {
         String state = String.valueOf(EventState.PENDING);
         if (event.getState() == PublicationState.PUBLISHED) {
             state = String.valueOf(EventState.PUBLISHED);
@@ -59,7 +59,7 @@ public class EventMapper {
         if (event.getState() == PublicationState.CANCELED)
             state = String.valueOf(EventState.CANCELED);
 
-        EventDetailedDto dto = EventDetailedDto.builder()
+        EventFullDto dto = EventFullDto.builder()
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toDto(event.getCategory()))
                 .confirmedRequests(confirmedRequests)

@@ -1,7 +1,7 @@
 package ru.practicum.mnsvc.mapper;
 
 import ru.practicum.mnsvc.dto.category.CategoryDto;
-import ru.practicum.mnsvc.dto.category.CategoryPostDto;
+import ru.practicum.mnsvc.dto.category.NewCategoryDto;
 import ru.practicum.mnsvc.model.Category;
 
 public class CategoryMapper {
@@ -9,7 +9,7 @@ public class CategoryMapper {
     private CategoryMapper() {
     }
 
-    public static Category toModel(CategoryPostDto dto) {
+    public static Category toModel(NewCategoryDto dto) {
         return Category.builder()
                 .id(null)
                 .name(dto.getName())

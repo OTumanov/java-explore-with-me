@@ -10,15 +10,9 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryPostDto {
+public class NewCategoryDto {
 
     @NotBlank
     private String name;
 
-//    @Override
-//    public String toString() {
-//        return "CategoryPostDto{" +
-//                "name='" + name + '\'' +
-//                '}';
-//    }
 }

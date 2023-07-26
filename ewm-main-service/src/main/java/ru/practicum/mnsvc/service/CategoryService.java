@@ -3,7 +3,7 @@ package ru.practicum.mnsvc.service;
 
 
 import ru.practicum.mnsvc.dto.category.CategoryDto;
-import ru.practicum.mnsvc.dto.category.CategoryPostDto;
+import ru.practicum.mnsvc.dto.category.NewCategoryDto;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ public interface CategoryService {
 
     CategoryDto patchCategory(CategoryDto dto);
 
-    CategoryDto addNewCategory(CategoryPostDto dto);
+    CategoryDto addNewCategory(NewCategoryDto dto);
 
     void deleteCategory(Long catId);
 

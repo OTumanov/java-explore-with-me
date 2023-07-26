@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.EventClient;
 import ru.practicum.ewm.client.dto.UtilDto;
+import ru.practicum.mnsvc.dto.compile.CompilationDto;
 import ru.practicum.mnsvc.dto.compile.CompilationPostDto;
 import ru.practicum.mnsvc.dto.compile.CompilationResponseDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
@@ -43,7 +44,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventClient client = new EventClient("http://localhost/8080", new RestTemplateBuilder());
 
     @Override
-    public List<CompilationResponseDto> findAll(Boolean pinned, Integer from, Integer size) {
+    public List<CompilationDto> findAll(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Compilation> compilations;
         if (pinned != null) {
@@ -61,7 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationResponseDto findById(Long compId) {
+    public CompilationDto findById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
 

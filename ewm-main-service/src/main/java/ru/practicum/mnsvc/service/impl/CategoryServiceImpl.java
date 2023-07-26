@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mnsvc.dto.category.CategoryDto;
-import ru.practicum.mnsvc.dto.category.CategoryPostDto;
+import ru.practicum.mnsvc.dto.category.NewCategoryDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.CategoryMapper;
@@ -61,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDto addNewCategory(CategoryPostDto dto) {
+    public CategoryDto addNewCategory(NewCategoryDto dto) {
         Category newCat = CategoryMapper.toModel(dto);
         newCat = categoryRepository.save(newCat);
         return CategoryMapper.toDto(newCat);

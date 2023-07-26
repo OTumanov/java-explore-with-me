@@ -1,9 +1,6 @@
 package ru.practicum.mnsvc.service;
 
-import ru.practicum.mnsvc.dto.events.EventDetailedDto;
-import ru.practicum.mnsvc.dto.events.EventPatchDto;
-import ru.practicum.mnsvc.dto.events.EventPostDto;
-import ru.practicum.mnsvc.dto.events.EventShortDto;
+import ru.practicum.mnsvc.dto.events.*;
 import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
 import ru.practicum.mnsvc.model.EventSearchParams;
@@ -13,17 +10,17 @@ import java.util.List;
 public interface EventService {
     List<EventShortDto> getEvents(EventSearchParams criteria, String clientIp, String endpoint);
 
-    EventDetailedDto findEventById(Long id, String clientIp, String endpoint);
+    EventFullDto findEventById(Long id, String clientIp, String endpoint);
 
     List<EventShortDto> findEventsByInitiatorId(Long userId, Integer from, Integer size);
 
-    EventDetailedDto patchEvent(Long userId, Long eventId, EventPatchDto dto);
+    EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest dto);
 
-    EventDetailedDto postEvent(Long userId, EventPostDto dto);
+    EventFullDto postEvent(Long userId, NewEventDto dto);
 
-    EventDetailedDto findEventByIdAndOwnerId(Long userId, Long eventId);
+    EventFullDto findEventByIdAndOwnerId(Long userId, Long eventId);
 
-    EventDetailedDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto);
+    EventFullDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto);
 
     List<ParticipationDto> getInfoAboutEventParticipation(Long userId, Long eventId);
 
@@ -31,11 +28,11 @@ public interface EventService {
 
     ParticipationDto rejectParticipation(Long userId, Long eventId, Long reqId);
 
-    List<EventDetailedDto> findEventsByConditions(EventSearchParams params);
+    List<EventFullDto> findEventsByConditions(EventSearchParams params);
 
-    EventDetailedDto editEvent(Long eventId, EventPostDto dto);
+    EventFullDto editEvent(Long eventId, UpdateEventAdminRequest dto);
 
-    EventDetailedDto publishEvent(Long eventId, EventPostDto dto, String clientIp, String endpoint);
+    EventFullDto publishEvent(Long eventId, UpdateEventAdminRequest dto, String clientIp, String endpoint);
 
 //    EventDetailedDto postRequest(Long userId, Long eventId);
 

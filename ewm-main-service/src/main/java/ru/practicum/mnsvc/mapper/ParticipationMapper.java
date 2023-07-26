@@ -22,7 +22,7 @@ public class ParticipationMapper {
                 .event(getEventById(dto.getEvent(), eventRepo))
                 .id(dto.getId())
                 .requester(getUserById(dto.getRequester(), userRepo))
-                .state(parseApplicationState(dto.getState()))
+                .state(parseApplicationState(dto.getStatus()))
                 .build();
     }
 
@@ -32,7 +32,7 @@ public class ParticipationMapper {
                 .event(model.getEvent().getId())
                 .id(model.getId())
                 .requester(model.getRequester().getId())
-                .state(model.getState().toString())
+                .status(model.getState().toString())
                 .build();
     }
 

@@ -1,10 +1,8 @@
 package ru.practicum.stsvc.mapper;
 
+import lombok.NoArgsConstructor;
 import ru.practicum.stsvc.dto.HitPostDto;
 import ru.practicum.stsvc.dto.HitResponseDto;
-import lombok.NoArgsConstructor;
-
-import ru.practicum.stsvc.model.App;
 import ru.practicum.stsvc.model.Hit;
 
 import java.time.LocalDateTime;
@@ -12,10 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public final class HitMapper {
 
-    public static Hit toModel(HitPostDto dto, App app) {
+    //    public static Hit toModel(HitPostDto dto, App app) {
+    public static Hit toModel(HitPostDto dto) {
         Hit hit = Hit.builder()
                 .hitId(dto.getId())
-                .app(app)
+//                .app(app)
                 .uri(dto.getUri())
                 .ip(dto.getIp())
                 .eventId(dto.getEventId())
@@ -30,7 +29,7 @@ public final class HitMapper {
 
     public static HitResponseDto toDto(Hit hit, Long countHits) {
         return HitResponseDto.builder()
-                .app(hit.getApp())
+//                .app(hit.getApp())
                 .uri(hit.getUri())
                 .hits(countHits)
                 .build();

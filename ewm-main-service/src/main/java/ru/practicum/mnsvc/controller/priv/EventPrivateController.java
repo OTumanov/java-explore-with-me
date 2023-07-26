@@ -22,26 +22,26 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/users/{userId}/events")
+@RequestMapping(path = "/users/{userId}")
 public class EventPrivateController {
 
     private final EventService eventService;
 
-    @GetMapping("/{eventId}")
+    @GetMapping("/events/{eventId}")
     public EventDetailedDto findEventByIdAndOwnerId(@Positive @PathVariable Long userId,
                                                     @Positive @PathVariable Long eventId) {
         log.info("Получить событие id:{} от пользователя id:{}", eventId, userId);
         return eventService.findEventByIdAndOwnerId(userId, eventId);
     }
 
-    @GetMapping("/{eventId}/requests")
+    @GetMapping("/events/{eventId}/requests")
     public List<ParticipationDto> getInfoAboutEventParticipation(@Positive @PathVariable Long userId,
                                                                  @Positive @PathVariable Long eventId) {
         log.info("Получить информацию о запросах на участие от пользователя id:{}, событие id:{}", eventId, userId);
         return eventService.getInfoAboutEventParticipation(userId, eventId);
     }
 
-    @GetMapping
+    @GetMapping("/events")
     public List<EventShortDto> findEventsByUserId(@Positive @PathVariable Long userId,
                                                   @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                   @Positive @RequestParam(defaultValue = "10") Integer size) {
@@ -49,21 +49,21 @@ public class EventPrivateController {
         return eventService.findEventsByInitiatorId(userId, from, size);
     }
 
-    @PostMapping
+    @PostMapping("/events")
     public EventDetailedDto postEvent(@Positive @PathVariable Long userId,
                                       @Valid @RequestBody EventPostDto dto) {
         log.info("Добавить событие от пользователя id:{} с данными:{}", userId, dto);
         return eventService.postEvent(userId, dto);
     }
 
-    @PatchMapping
+    @PatchMapping("/events")
     public EventDetailedDto patchEvent(@Positive @PathVariable Long userId,
                                        @Validated({PatchValidMarker.class}) @RequestBody EventPatchDto dto) {
         log.info("Изменить событие id:{} от пользователя id:{}", dto, userId);
         return eventService.patchEvent(userId, dto);
     }
 
-    @PatchMapping("/{eventId}/requests")
+    @PatchMapping("/events/{eventId}/requests")
     public ParticipationDto confirmParticipation(@Positive @PathVariable Long userId,
                                                  @Positive @PathVariable Long eventId,
                                                  @RequestBody EventRequestStatusUpdateDto dto) {
@@ -87,7 +87,7 @@ public class EventPrivateController {
 //        return eventService.rejectParticipation(userId, eventId, reqId);
 //    }
 
-    @PatchMapping("/{eventId}")
+    @PatchMapping("/events/{eventId}")
     public EventDetailedDto canselEventByIdAndOwnerId(@Positive @PathVariable Long userId,
                                                       @Positive @PathVariable Long eventId,
                                                       @RequestBody EventPatchDto dto) {

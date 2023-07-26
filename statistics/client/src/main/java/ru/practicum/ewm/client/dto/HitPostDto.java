@@ -1,19 +1,21 @@
-package ru.practicum.stsvc.dto;
+package ru.practicum.ewm.client.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class HitPostDto {
 
     private Long id;
-    //    @NotBlank
 //    private String app;
     private String uri;
     private String ip;
     private String timeStamp;
     private Long eventId;
+
 }

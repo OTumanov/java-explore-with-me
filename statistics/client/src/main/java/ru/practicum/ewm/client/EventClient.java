@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.client.dto.BoxDto;
 
-import ru.practicum.ewm.client.dto.HitDto;
+import ru.practicum.ewm.client.dto.HitPostDto;
 import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.ewm.client.mapper.DateTimeMapper;
 
@@ -31,9 +31,10 @@ public class EventClient {
     public static final String PARAM = "?ids=";
     public static final String DELIMITER = ",";
     public static final String API_HIT_PREFIX = "/hit";
-    public static final String APP_NAME = "ewm-service";
+//    public static final String APP_NAME = "ewm-service";
     public static final String API_STATS_PREFIX = "/stats";
     public static final String API_VIEWS_PREFIX = "/views";
+//    public static final String BASE_PATH = "http://ewm-stats:9090";
     public static final String BASE_PATH = "http://localhost:9090";
 
     private final RestTemplate hitRest;
@@ -59,10 +60,16 @@ public class EventClient {
     }
 
     public void postHit(String endpoint, String clientIp, Long eventId) {
-        HitDto dto = new HitDto(APP_NAME, endpoint, clientIp, DateTimeMapper.toString(LocalDateTime.now()), eventId);
-        HttpEntity<HitDto> requestEntity = new HttpEntity<>(dto);
+        HitPostDto dto = HitPostDto.builder()
+//                .app(APP_NAME)
+                .uri(endpoint)
+                .ip(clientIp)
+                .timeStamp(DateTimeMapper.toString(LocalDateTime.now()))
+                .eventId(eventId)
+                .build();
+        HttpEntity<HitPostDto> requestEntity = new HttpEntity<>(dto);
         String path = BASE_PATH + API_HIT_PREFIX;
-        hitRest.exchange(path, HttpMethod.POST, requestEntity, HitDto.class);
+        hitRest.exchange(path, HttpMethod.POST, requestEntity, HitPostDto.class);
     }
 
     public ResponseEntity<Long> getViewsByEventId(Long eventId) {

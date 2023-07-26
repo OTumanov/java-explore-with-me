@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ParticipationServiceImpl implements ParticipationService {
 
-    private final ParticipationRepository participationRepo;
-    private final EventRepository eventRepo;
-    private final UserRepository userRepo;
+    private final ParticipationRepository participationRepository;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<ParticipationDto> getInfoAboutAllParticipation(Long userId) {
-        userRepo.findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
-        List<Participation> participations = participationRepo.findAllByRequesterId(userId);
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
+        List<Participation> participations = participationRepository.findAllByRequesterId(userId);
         return participations.stream().map(ParticipationMapper::toDto).collect(Collectors.toList());
     }
 
@@ -40,26 +40,26 @@ public class ParticipationServiceImpl implements ParticipationService {
         if(eventId == null) {
             throw new IllegalArgumentException("event id is null");
         }
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
-        Event event = eventRepo.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+        User user = checkUser(userId);
+        Event event = checkEvent(eventId);
 
-        Participation participation = participationRepo
-                .findByEventIdAndRequesterId(eventId, userId).orElse(null);
+        Participation participation =
+                participationRepository.findByEventIdAndRequesterId(eventId, userId).orElse(null);
+
         if (participation != null) {
             return ParticipationMapper.toDto(participation);
         }
-        if (event.getInitiator().getId().equals(userId)) {
-            throw new ForbiddenException("User id:" + userId
-                    + " the user cannot apply to participate in their own event");
-        }
         if (!event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new ForbiddenException("you cannot take part in an unpublished event");
+            throw new ForbiddenException("Нельзя принять участие в событии, которое еще не опубликовано");
         }
-        int confirmedRequests = participationRepo.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ForbiddenException("Пользователь с этим id не может участвовать в событии");
+        }
+
+        int confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+
         if (event.getParticipantLimit() != 0 && confirmedRequests >= event.getParticipantLimit()) {
-            throw new ForbiddenException("the limit of participants in the event has been reached");
+            throw new ForbiddenException("Нельзя принять участие в событии, которое превышает лимит участников");
         }
 
         Participation newParticipation = Participation.builder()
@@ -68,23 +68,33 @@ public class ParticipationServiceImpl implements ParticipationService {
                 .requester(user)
                 .build();
 
-        if (event.getRequestModeration().equals(false)) {
+        if (event.getRequestModeration().equals(false) || event.getParticipantLimit() == 0) {
             newParticipation.setState(ParticipationState.CONFIRMED);
         } else {
             newParticipation.setState(ParticipationState.PENDING);
         }
 
-        newParticipation = participationRepo.save(newParticipation);
+        newParticipation = participationRepository.save(newParticipation);
         return ParticipationMapper.toDto(newParticipation);
     }
 
     @Override
     @Transactional
     public ParticipationDto cancelParticipation(Long requesterId, Long requestId) {
-        Participation participation = participationRepo.findByRequesterIdAndId(requesterId, requestId)
+        Participation participation = participationRepository.findByRequesterIdAndId(requesterId, requestId)
                 .orElseThrow(() -> new NotFoundException("Participation not found requesterId: "
                         + requesterId + " requestId: " + requestId));
         participation.setState(ParticipationState.REJECTED);
         return ParticipationMapper.toDto(participation);
+    }
+
+    private User checkUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Нет пользователя с id: " + userId));
+    }
+
+    private Event checkEvent(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Нет события с id: " + eventId));
     }
 }

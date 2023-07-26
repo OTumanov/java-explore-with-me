@@ -9,6 +9,7 @@ import ru.practicum.mnsvc.dto.events.EventPostDto;
 import ru.practicum.mnsvc.model.EventSearchParams;
 import ru.practicum.mnsvc.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -52,8 +53,13 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     public EventDetailedDto publishEvent(@Positive @PathVariable Long eventId,
-                                        @RequestBody EventPostDto dto) {
+                                        @RequestBody EventPostDto dto,
+                                        HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        String endpoint = request.getRequestURI();
+        log.info("Подключение с ip-адреса: {}", clientIp);
+        log.info("Подключение к эндпоинту: http://localhost:8080{}", endpoint);
         log.info("Опубликовать событие id: {}. Получен статус: {}", eventId, dto.getStateAction());
-        return eventService.publishEvent(eventId, dto);
+        return eventService.publishEvent(eventId, dto, clientIp, endpoint);
     }
 }

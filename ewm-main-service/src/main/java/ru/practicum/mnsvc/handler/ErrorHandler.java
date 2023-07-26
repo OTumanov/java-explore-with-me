@@ -17,26 +17,18 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class ErrorHandler {
 
+    //    400
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handle(IllegalArgumentException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
                 .reason("For the requested operation the conditions are not met.")
-                .status(Status.FORBIDDEN)
+                .status(Status.BAD_REQUEST)
                 .build();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handle(NotFoundException ex) {
-        return ApiError.builder()
-                .message(ex.getMessage())
-                .reason("The required object was not found.")
-                .status(Status.NOT_FOUND)
-                .build();
-    }
-
+    //    403
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiError handle(ForbiddenException ex) {
@@ -48,6 +40,18 @@ public class ErrorHandler {
                 .build();
     }
 
+    //    404
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handle(NotFoundException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .reason("The required object was not found.")
+                .status(Status.NOT_FOUND)
+                .build();
+    }
+
+    //    500
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handle(Throwable ex) {

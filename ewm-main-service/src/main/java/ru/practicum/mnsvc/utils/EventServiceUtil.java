@@ -36,7 +36,6 @@ public class EventServiceUtil {
 
             if (params.getUserIds() != null) {
                 for (Long userId : params.getUserIds()) {
-                    System.out.println(userId);
                     predicates.add(criteriaBuilder.in(root.get("initiator").get("id")).value(userId));
                 }
             }

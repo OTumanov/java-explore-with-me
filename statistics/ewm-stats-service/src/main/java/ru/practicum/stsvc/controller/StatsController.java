@@ -52,7 +52,7 @@ public class StatsController {
 
     @PostMapping("/hit")
     public ResponseEntity<Hit> postHit(@Valid @RequestBody HitPostDto dto) {
-        log.info("Сохранение запроса: {}", dto);
+        log.info("Запрос на сохранение запроса: {}", dto);
         return new ResponseEntity<>(ssService.postHit(dto), HttpStatus.CREATED);
     }
 }

@@ -30,7 +30,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.mnsvc.utils.EventServiceUtil.*;
+import static ru.practicum.mnsvc.utils.EventServiceUtil.getSpecification;
+import static ru.practicum.mnsvc.utils.EventServiceUtil.isEventDateOk;
 import static ru.practicum.mnsvc.utils.Util.*;
 
 
@@ -70,9 +71,9 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), sort);
         List<Event> events = eventRepository.findAll(specification, pageable).toList();
 
-//        for(Event event : events) {
-//            addHit(endpoint, clientIp, event.getId(), client);
-//        }
+        for (Event event : events) {
+            addHit(endpoint, clientIp, event.getId(), client);
+        }
 
         return prepareDataAndGetEventShortDtoList(events);
     }
@@ -80,10 +81,10 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDetailedDto findEventById(Long id, String clientIp, String endpoint) {
-        Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого события!"));
-//        addHit(endpoint, clientIp, id, client);
+        Event event = checkEvent(id);
+        addHit(endpoint, clientIp, id, client);
 
-        if(!event.getState().equals(PublicationState.PUBLISHED)){
+        if (!event.getState().equals(PublicationState.PUBLISHED)) {
             throw new NotFoundException("Событие должно быть опубликовано!");
         }
 
@@ -102,9 +103,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDetailedDto patchEvent(Long userId, EventPatchDto dto) {
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
-        Event event = eventRepository.findById(dto.getEventId())
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(dto.getEventId())));
+        checkUser(userId);
+        Event event = checkEvent(dto.getEventId());
 
         if (event.getState().equals(PublicationState.PUBLISHED)) {
             throw new ForbiddenException("Only pending or canceled events can be changed");
@@ -124,7 +124,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDetailedDto postEvent(Long userId, EventPostDto dto) {
         if (!isEventDateOk(dto.getEventDate())) {
-            throw new ForbiddenException("Событие не может наступить ранее двух часов от текущего времени!");
+            throw new IllegalArgumentException("Событие не может наступить ранее двух часов от текущего времени!");
         }
 
         if (dto.getDescription() == null || dto.getDescription().isEmpty() || dto.getDescription().isBlank()) {
@@ -170,10 +170,10 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDetailedDto cancelEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
 
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        Event event = checkEvent(eventId, userId);
 
         if (!event.getState().equals(PublicationState.CANCELED)) {
-            throw new ForbiddenException("Событие не может быть изменено! " +
+            throw new IllegalArgumentException("Событие не может быть изменено! " +
                     "Изменить можно только отмененное событие или находящееся на модерации. Сейчас же статус у этого события:" + event.getState());
         }
 
@@ -198,8 +198,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto) {
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+        Event event = checkEvent(eventId, userId);
 
         if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
             throw new ForbiddenException("Confirmation of the participation is not required");
@@ -209,7 +208,7 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenException("the limit of participants in the event has been reached");
         }
 
-        for(Integer pId  : dto.getRequestIds()) {
+        for (Integer pId : dto.getRequestIds()) {
 
             Participation participation = participationRepository.findById(Long.valueOf(pId)).orElseThrow(() -> new NotFoundException("Нет такого!"));
 
@@ -304,19 +303,19 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDetailedDto publishEvent(Long eventId, EventPostDto dto) {
+    public EventDetailedDto publishEvent(Long eventId, EventPostDto dto, String clientIp, String endpoint) {
 
         if (dto.getStateAction() == StateAction.PUBLISH_EVENT) {
 
-            Event event = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+            Event event = checkEvent(eventId);
 
+            if (!event.getEventDate().isAfter(LocalDateTime.now().plusHours(1))) {
+                throw new ForbiddenException("Событие не может быть отредактировано менее, чем за час до события");
+            }
             if (!event.getState().equals(PublicationState.PENDING)) {
-                throw new ForbiddenException("event must be in the publication waiting state");
+                throw new ForbiddenException("Событие должно быть в ожидании публикации");
             }
-            if (!isMayPublish(event)) {
-                throw new ForbiddenException("event date must be no earlier than an hour from the date of publication");
-            }
+
             event.setPublishedOn(LocalDateTime.now());
             event.setState(PublicationState.PUBLISHED);
             event = eventRepository.save(event);
@@ -334,8 +333,10 @@ public class EventServiceImpl implements EventService {
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = client.getViewsByEventId(event.getId()).getBody();
             return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+        } else if (dto.getEventDate() != null) {
+            throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
         } else {
-            throw new ForbiddenException("invalid state action");
+            throw new ForbiddenException("Недопустимые входные данные");
         }
     }
 
@@ -398,5 +399,20 @@ public class EventServiceImpl implements EventService {
                         matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
                         matchLongValueByEventId(viewsEventIdRelations, event.getId())))
                 .collect(Collectors.toList());
+    }
+
+    private Event checkEvent(long eventId, Long userId) {
+        return eventRepository.findByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new NotFoundException("Нет такого события!"));
+    }
+
+    private Event checkEvent(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Нет такого события!"));
+    }
+
+    private User checkUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Нет такого пользователя!"));
     }
 }

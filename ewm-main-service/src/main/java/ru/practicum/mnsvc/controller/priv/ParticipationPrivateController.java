@@ -2,6 +2,8 @@ package ru.practicum.mnsvc.controller.priv;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
@@ -26,10 +28,10 @@ public class ParticipationPrivateController {
     }
 
     @PostMapping
-    public ParticipationDto addParticipationQuery(@Positive @PathVariable Long userId,
-                                                  @Positive @RequestParam(required = false) Long eventId) {
+    public ResponseEntity<ParticipationDto> addParticipationQuery(@Positive @PathVariable Long userId,
+                                                                 @Positive @RequestParam(required = false) Long eventId) {
         log.info("Добавление запроса на участие пользователя id:{}, event id:{}", userId, eventId);
-        return participationService.addParticipationQuery(userId, eventId);
+        return new ResponseEntity<>(participationService.addParticipationQuery(userId, eventId), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{requestId}/cancel")

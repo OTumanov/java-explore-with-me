@@ -8,12 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.EventClient;
 import ru.practicum.ewm.client.dto.UtilDto;
-import ru.practicum.mnsvc.dto.compile.*;
+import ru.practicum.mnsvc.dto.compile.CompilationDto;
+import ru.practicum.mnsvc.dto.compile.NewCompilationDto;
+import ru.practicum.mnsvc.dto.compile.UpdateCompilationRequest;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.CompilationMapper;
 import ru.practicum.mnsvc.mapper.EventMapper;
-import ru.practicum.mnsvc.model.CompEvent;
 import ru.practicum.mnsvc.model.Compilation;
 import ru.practicum.mnsvc.model.Event;
 import ru.practicum.mnsvc.model.ParticipationState;
@@ -24,6 +25,7 @@ import ru.practicum.mnsvc.repository.ParticipationRepository;
 import ru.practicum.mnsvc.service.CompilationService;
 import ru.practicum.mnsvc.utils.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,18 +72,21 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto addNewCompilation(NewCompilationDto dto) {
+
+        if (dto.getEvents().isEmpty()) {
+            return null;
+        }
+        List<Event> events = new ArrayList<>();
+
+        for (Integer eventId : dto.getEvents()) {
+            events.add(checkEvent(Long.valueOf(eventId)));
+            Compilation compilation = CompilationMapper.toModel(dto, events);
+            compilation = compilationRepository.save(compilation);
+            List<EventShortDto> eventDtos = getEventShortDtoList(events);
+            return CompilationMapper.toResponseDto(compilation, eventDtos);
+        }
+
         return null;
-    }
-
-    @Override
-    @Transactional
-    public CompilationResponseDto addNewCompilation(CompilationPostDto dto) {
-        List<Event> events = eventRepository.findAll(dto.getEvents());
-        Compilation compilation = CompilationMapper.toModel(dto, events);
-        compilation = compilationRepository.save(compilation);
-
-        List<EventShortDto> eventDtos = getEventShortDtoList(events);
-        return CompilationMapper.toResponseDto(compilation, eventDtos);
     }
 
     @Override
@@ -95,40 +100,40 @@ public class CompilationServiceImpl implements CompilationService {
         return null;
     }
 
-    @Override
-    @Transactional
-    public void deleteEventFromCompilation(Long compId, Long eventId) {
-        compilationRepository
-                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
-        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
-        compEventsRepository.deleteByCompilationIdAndEventId(compId, eventId);
-    }
+//    @Override
+//    @Transactional
+//    public void deleteEventFromCompilation(Long compId, Long eventId) {
+//        compilationRepository
+//                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+//        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+//        compEventsRepository.deleteByCompilationIdAndEventId(compId, eventId);
+//    }
 
-    @Override
-    @Transactional
-    public void addEventToCompilation(Long compId, Long eventId) {
-        compilationRepository
-                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
-        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
-        CompEvent compEvent = new CompEvent(compId, eventId);
-        compEventsRepository.save(compEvent);
-    }
-
-    @Override
-    @Transactional
-    public void unpinCompilation(Long compId) {
-        Compilation compilation = compilationRepository
-                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
-        compilation.setPinned(false);
-    }
-
-    @Override
-    @Transactional
-    public void pinCompilation(Long compId) {
-        Compilation compilation = compilationRepository
-                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
-        compilation.setPinned(true);
-    }
+//    @Override
+//    @Transactional
+//    public void addEventToCompilation(Long compId, Long eventId) {
+//        compilationRepository
+//                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+//        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
+//        CompEvent compEvent = new CompEvent(compId, eventId);
+//        compEventsRepository.save(compEvent);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void unpinCompilation(Long compId) {
+//        Compilation compilation = compilationRepository
+//                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+//        compilation.setPinned(false);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void pinCompilation(Long compId) {
+//        Compilation compilation = compilationRepository
+//                .findById(compId).orElseThrow(() -> new NotFoundException(Util.getCompilationNotFoundMessage(compId)));
+//        compilation.setPinned(true);
+//    }
 
     private List<EventShortDto> getEventShortDtos(Compilation compilation) {
         return getEventShortDtoList(compilation.getEvents());
@@ -145,5 +150,9 @@ public class CompilationServiceImpl implements CompilationService {
                         matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
                         matchLongValueByEventId(viewsEventIdRelations, event.getId())))
                 .collect(Collectors.toList());
+    }
+
+    private Event checkEvent(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Нет такого события"));
     }
 }

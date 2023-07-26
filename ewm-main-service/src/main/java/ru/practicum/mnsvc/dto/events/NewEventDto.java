@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 import ru.practicum.mnsvc.model.Location;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -15,10 +16,10 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class NewEventDto {
     @NotEmpty
-    @Length(min = 20, max = 200, message = "От 20 до 200 символов")
+    @Length(min = 20, max = 2000, message = "От 20 до 2000 символов")
     private String annotation;
 
-    @NotEmpty
+    @NotNull
     private Integer category;
 
     @NotEmpty
@@ -28,7 +29,7 @@ public class NewEventDto {
     @NotEmpty
     private String eventDate;
 
-    @NotEmpty
+    @NotNull
     private Location location;
 
     private Boolean paid;

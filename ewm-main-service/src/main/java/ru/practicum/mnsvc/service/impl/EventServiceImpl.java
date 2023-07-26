@@ -124,7 +124,7 @@ public class EventServiceImpl implements EventService {
         }
 
         User initiator = checkUser(userId);
-        Category category = checkCategory(dto.getCategory());
+        Category category = checkCategory(Long.valueOf(dto.getCategory()));
 
         Event event = EventMapper.toModel(dto, initiator, category);
         Location location = locationRepository.save(event.getLocation());
@@ -329,7 +329,7 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    private void updateEvent(Event event, EventPatchDto update, CategoryRepository categoryRepo) {
+    private void updateEvent(Event event, UpdateEventAdminRequest update, CategoryRepository categoryRepo) {
         if (update.getAnnotation() != null) {
             event.setAnnotation(update.getAnnotation());
         }
@@ -358,7 +358,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void updateEvent(Event event, UpdateEventAdminRequest update, CategoryRepository categoryRepo) {
+    private void updateEvent(Event event, UpdateEventUserRequest update, CategoryRepository categoryRepo) {
         if (update.getAnnotation() != null) {
             event.setAnnotation(update.getAnnotation());
         }

@@ -1,8 +1,8 @@
 package ru.practicum.mnsvc.mapper;
 
 import ru.practicum.mnsvc.dto.events.EventFullDto;
-import ru.practicum.mnsvc.dto.events.UpdateEventAdminRequest;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
+import ru.practicum.mnsvc.dto.events.NewEventDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.*;
 import ru.practicum.mnsvc.repository.CategoryRepository;
@@ -16,7 +16,7 @@ public class EventMapper {
     private EventMapper() {
     }
 
-    public static Event toModel(UpdateEventAdminRequest dto, User initiator, Category category) {
+    public static Event toModel(NewEventDto dto, User initiator, Category category) {
         Event event = Event.builder()
                 .annotation(dto.getAnnotation())
                 .category(category)

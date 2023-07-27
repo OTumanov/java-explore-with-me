@@ -1,15 +1,12 @@
 package ru.practicum.mnsvc.dto.users;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 
-@Getter
-@Setter
+@Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserShortDto {
     @NotEmpty

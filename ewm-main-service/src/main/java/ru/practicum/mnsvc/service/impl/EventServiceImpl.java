@@ -85,7 +85,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Событие должно быть опубликовано!");
         }
 
-        return EventMapper.toEventDetailedDto(event,
+        return EventMapper.toEventFullDto(event,
                 participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED),
                 client.getViewsByEventId(event.getId()).getBody());
     }
@@ -106,12 +106,12 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenException("Only pending or canceled events can be changed");
         }
 
-        updateEvent(event, dto, categoryRepository);
+        updateEvent(event, dto);
         if (event.getState().equals(PublicationState.CANCELED)) {
             event.setState(PublicationState.PENDING);
         }
         event = eventRepository.save(event);
-        return EventMapper.toEventDetailedDto(event,
+        return EventMapper.toEventFullDto(event,
                 participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED),
                 client.getViewsByEventId(event.getId()).getBody());
     }
@@ -132,7 +132,7 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(event.getId()).getBody();
-        return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+        return EventMapper.toEventFullDto(event, confirmedRequests, views);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class EventServiceImpl implements EventService {
                 userId).orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
         Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(event.getId()).getBody();
-        return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+        return EventMapper.toEventFullDto(event, confirmedRequests, views);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(event.getId()).getBody();
-        return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+        return EventMapper.toEventFullDto(event, confirmedRequests, views);
     }
 
     @Override
@@ -230,7 +230,7 @@ public class EventServiceImpl implements EventService {
         List<UtilDto> viewsEventIdRelations = client.getViewsByEventIds(eventIds);
 
         return events.stream()
-                .map((Event event) -> EventMapper.toEventDetailedDto(
+                .map((Event event) -> EventMapper.toEventFullDto(
                         event,
                         matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
                         matchLongValueByEventId(viewsEventIdRelations, event.getId())))
@@ -276,7 +276,7 @@ public class EventServiceImpl implements EventService {
         Integer confirmedRequests = participationRepository
                 .getConfirmedRequests(editable.getId(), ParticipationState.CONFIRMED);
         Long views = client.getViewsByEventId(editable.getId()).getBody();
-        return EventMapper.toEventDetailedDto(editable, confirmedRequests, views);
+        return EventMapper.toEventFullDto(editable, confirmedRequests, views);
     }
 
     @Override
@@ -297,27 +297,26 @@ public class EventServiceImpl implements EventService {
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = client.getViewsByEventId(event.getId()).getBody();
-            return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+            return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else if (dto.getStateAction() == StateAction.REJECT_EVENT) {
-            Event event = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new ForbiddenException(Util.getEventNotFoundMessage(eventId)));
+            Event event = checkEvent(eventId);
             if (event.getState().equals(PublicationState.PUBLISHED)) {
-                throw new ForbiddenException("not possible to reject a published event");
+                throw new ForbiddenException("Нельзя отклонить опубликованное событие");
             }
             event.setState(PublicationState.CANCELED);
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = client.getViewsByEventId(event.getId()).getBody();
-            return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+            return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else if (DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
                 throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
         } else if (dto.getStateAction() == null) {
             Event event = checkEvent(eventId);
-            updateEvent(event, dto, categoryRepository);
+            updateEvent(event, dto);
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = client.getViewsByEventId(event.getId()).getBody();
-            return EventMapper.toEventDetailedDto(event, confirmedRequests, views);
+            return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else {
             throw new ForbiddenException("Недопустимые входные данные");
         }
@@ -329,13 +328,13 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    private void updateEvent(Event event, UpdateEventAdminRequest update, CategoryRepository categoryRepo) {
+    private void updateEvent(Event event, UpdateEventAdminRequest update) {
         if (update.getAnnotation() != null) {
             event.setAnnotation(update.getAnnotation());
         }
         if (update.getCategory() != null) {
-            Category category = categoryRepo.findById((update.getCategory()))
-                    .orElseThrow(() -> new NotFoundException(Util.getCategoryNotFoundMessage(update.getCategory())));
+            Category category = categoryRepository.findById((update.getCategory()))
+                    .orElseThrow(() -> new NotFoundException("Нет такой категории"));
             event.setCategory(category);
         }
         if (update.getDescription() != null) {
@@ -343,7 +342,7 @@ public class EventServiceImpl implements EventService {
         }
         if (update.getEventDate() != null) {
             if (!isEventDateOk(update.getEventDate())) {
-                throw new ForbiddenException("the event can be changed no later than 2 hours before the start");
+                throw new IllegalArgumentException("Событие можно изменить не менее, чем за 2 часа до события");
             }
             event.setEventDate(DateTimeMapper.toDateTime(update.getEventDate()));
         }
@@ -358,13 +357,13 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void updateEvent(Event event, UpdateEventUserRequest update, CategoryRepository categoryRepo) {
+    private void updateEvent(Event event, UpdateEventUserRequest update) {
         if (update.getAnnotation() != null) {
             event.setAnnotation(update.getAnnotation());
         }
         if (update.getCategory() != null) {
-            Category category = categoryRepo.findById((update.getCategory()))
-                    .orElseThrow(() -> new NotFoundException(Util.getCategoryNotFoundMessage(update.getCategory())));
+            Category category = categoryRepository.findById((update.getCategory()))
+                    .orElseThrow(() -> new NotFoundException("Нет такой категории"));
             event.setCategory(category);
         }
         if (update.getDescription() != null) {
@@ -372,7 +371,7 @@ public class EventServiceImpl implements EventService {
         }
         if (update.getEventDate() != null) {
             if (!isEventDateOk(update.getEventDate())) {
-                throw new ForbiddenException("the event can be changed no later than 2 hours before the start");
+                throw new IllegalArgumentException("Событие можно изменить не менее, чем за 2 часа до события");
             }
             event.setEventDate(DateTimeMapper.toDateTime(update.getEventDate()));
         }

@@ -51,7 +51,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventFullDto toEventDetailedDto(Event event, Integer confirmedRequests, Long views) {
+    public static EventFullDto toEventFullDto(Event event, Integer confirmedRequests, Long views) {
         String state = String.valueOf(EventState.PENDING);
         if (event.getState() == PublicationState.PUBLISHED) {
             state = String.valueOf(EventState.PUBLISHED);
@@ -80,6 +80,7 @@ public class EventMapper {
         if (event.getPublishedOn() != null) {
             dto.setPublishedOn(DateTimeMapper.toString(event.getPublishedOn()));
         }
+
         return dto;
     }
 

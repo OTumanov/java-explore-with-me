@@ -1,17 +1,17 @@
 package ru.practicum.stsvc.service;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.practicum.stsvc.dto.BoxDto;
-import ru.practicum.stsvc.dto.HitPostDto;
-import ru.practicum.stsvc.dto.HitResponseDto;
-import ru.practicum.stsvc.dto.UtilDto;
+import ru.practicum.ewm.client.dto.BoxDto;
+import ru.practicum.ewm.client.dto.HitPostDto;
+import ru.practicum.ewm.client.dto.UtilDto;
+import ru.practicum.ewm.client.dto.HitResponseDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.practicum.stsvc.mapper.HitMapper;
 import ru.practicum.stsvc.model.Hit;
-import ru.practicum.stsvc.repository.AppRepository;
 import ru.practicum.stsvc.repository.HitRepository;
 
 import java.time.LocalDateTime;
@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class StatsServiceImpl implements StatsService {
 
     private final HitRepository hitRepository;
-    private final AppRepository appRepository;
 
     @Override
     @Transactional

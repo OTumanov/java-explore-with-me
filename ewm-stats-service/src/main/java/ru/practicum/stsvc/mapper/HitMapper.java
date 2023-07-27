@@ -1,8 +1,8 @@
 package ru.practicum.stsvc.mapper;
 
 import lombok.NoArgsConstructor;
-import ru.practicum.stsvc.dto.HitPostDto;
-import ru.practicum.stsvc.dto.HitResponseDto;
+import ru.practicum.ewm.client.dto.HitPostDto;
+import ru.practicum.ewm.client.dto.HitResponseDto;
 import ru.practicum.stsvc.model.Hit;
 
 import java.time.LocalDateTime;

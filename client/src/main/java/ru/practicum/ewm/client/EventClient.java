@@ -12,11 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.client.dto.BoxDto;
-
 import ru.practicum.ewm.client.dto.HitPostDto;
 import ru.practicum.ewm.client.dto.UtilDto;
-import ru.practicum.ewm.client.mapper.DateTimeMapper;
-
+import ru.practicum.ewm.client.utils.DateTimeMapper;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -34,7 +32,7 @@ public class EventClient {
 //    public static final String APP_NAME = "ewm-service";
     public static final String API_STATS_PREFIX = "/stats";
     public static final String API_VIEWS_PREFIX = "/views";
-    public static final String BASE_PATH = "http://ewm-stats:9090";
+    public static final String BASE_PATH = "http://ewm-stats-service:9090";
 //    public static final String BASE_PATH = "http://localhost:9090";
 
     private final RestTemplate hitRest;

@@ -1,8 +1,8 @@
 package ru.practicum.stsvc.controller;
 
-import ru.practicum.stsvc.dto.BoxDto;
-import ru.practicum.stsvc.dto.HitPostDto;
-import ru.practicum.stsvc.dto.HitResponseDto;
+import ru.practicum.ewm.client.dto.BoxDto;
+import ru.practicum.ewm.client.dto.HitPostDto;
+import ru.practicum.ewm.client.dto.HitResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

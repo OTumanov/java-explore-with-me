@@ -7,27 +7,32 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "hits")
+@Entity(name = "hits")
 public class Hit {
 
+    public static final String IP_COLUMN_NAME = "ip";
+    public static final String URI_COLUMN_NAME = "uri";
+    public static final String ID_COLUMN_NAME = "hit_id";
+    public static final String APP_COLUMN_NAME = "app_id";
+    public static final String EVENT_ID_COLUMN_NAME = "event_id";
+    public static final String TIMESTAMP_COLUMN_NAME = "time_stamp";
+
     @Id
-    @Column(name = "hit_id")
+    @Column(name = ID_COLUMN_NAME)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long hitId;
-//    @ManyToOne(optional = false)
-//    @JoinColumn(name = "app_id", nullable = false)
+    //    @ManyToOne(optional = false)
+//    @JoinColumn(name = APP_COLUMN_NAME, nullable = false)
 //    private App app;
-    @Column(name = "uri")
+    @Column(name = URI_COLUMN_NAME)
     private String uri;
-    @Column(name = "ip", nullable = false)
+    @Column(name = IP_COLUMN_NAME, nullable = false)
     private String ip;
-    @Column(name = "time_stamp")
+    @Column(name = TIMESTAMP_COLUMN_NAME)
     private LocalDateTime timeStamp;
-    @Column(name = "event_id")
+    @Column(name = EVENT_ID_COLUMN_NAME)
     private Long eventId;
 }

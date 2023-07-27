@@ -56,14 +56,16 @@ public class EventServiceUtil {
 
             if (null != params.getRangeStart()) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("publishedOn"), params.getRangeStart()));
-            } else {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("publishedOn"), LocalDateTime.now()));
             }
+//            else {
+//                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("publishedOn"), LocalDateTime.now()));
+//            }
             if (null != params.getRangeEnd()) {
                 predicates.add(criteriaBuilder.lessThan(root.get("publishedOn"), params.getRangeEnd()));
-            } else {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("publishedOn"), LocalDateTime.now()));
             }
+//            else {
+//                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("publishedOn"), LocalDateTime.now()));
+//            }
             if (null != params.getOnlyAvailable() && params.getOnlyAvailable()) {
                 predicates.add(criteriaBuilder.lessThan(root.get("participantLimit"), root.get("confirmedRequests")));
             }

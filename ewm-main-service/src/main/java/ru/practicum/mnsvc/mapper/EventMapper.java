@@ -10,6 +10,7 @@ import ru.practicum.mnsvc.repository.UserRepository;
 import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class EventMapper {
 
@@ -26,10 +27,10 @@ public class EventMapper {
                 .id(null)
                 .initiator(initiator)
                 .location(dto.getLocation())
-                .paid(dto.getPaid())
-                .participantLimit(dto.getParticipantLimit())
+                .paid(Objects.requireNonNullElse(dto.getPaid(), false))
+                .participantLimit(Objects.requireNonNullElse(dto.getParticipantLimit(),0))
                 .publishedOn(null)
-                .requestModeration(dto.getRequestModeration())
+                .requestModeration(Objects.requireNonNullElse(dto.getRequestModeration(), true))
                 .state(PublicationState.PENDING)
                 .title(dto.getTitle())
                 .build();

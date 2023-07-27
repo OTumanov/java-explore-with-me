@@ -3,7 +3,6 @@ package ru.practicum.mnsvc.controller.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.users.NewUserDto;
@@ -32,12 +31,14 @@ public class UserAdminController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> postUser(@Validated @RequestBody NewUserDto dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto postUser(@Validated @RequestBody NewUserDto dto) {
         log.info("Добавление нового пользователя {}", dto);
-        return new ResponseEntity<>(userService.postUser(dto), HttpStatus.CREATED);
+        return userService.postUser(dto);
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@Positive @PathVariable Long userId) {
         log.info("Удаление пользователя {}", userId);
         userService.deleteUser(userId);

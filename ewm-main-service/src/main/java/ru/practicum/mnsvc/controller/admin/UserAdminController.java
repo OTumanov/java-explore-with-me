@@ -2,12 +2,13 @@ package ru.practicum.mnsvc.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.users.NewUserDto;
 import ru.practicum.mnsvc.dto.users.UserDto;
 import ru.practicum.mnsvc.service.UserService;
-import ru.practicum.mnsvc.utils.CommonValidMarker;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -23,7 +24,7 @@ public class UserAdminController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> findUsers(@RequestParam List<Long> ids,
+    public List<UserDto> findUsers(@RequestParam(required = false) List<Long> ids,
                                    @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                    @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Получение информации о пользователях - {}", ids);
@@ -31,9 +32,9 @@ public class UserAdminController {
     }
 
     @PostMapping
-    public UserDto postUser(@Validated @RequestBody NewUserDto dto) {
+    public ResponseEntity<UserDto> postUser(@Validated @RequestBody NewUserDto dto) {
         log.info("Добавление нового пользователя {}", dto);
-        return userService.postUser(dto);
+        return new ResponseEntity<>(userService.postUser(dto), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")

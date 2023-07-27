@@ -7,14 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mnsvc.dto.category.CategoryDto;
 import ru.practicum.mnsvc.dto.category.NewCategoryDto;
-import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.CategoryMapper;
 import ru.practicum.mnsvc.model.Category;
 import ru.practicum.mnsvc.repository.CategoryRepository;
 import ru.practicum.mnsvc.service.CategoryService;
 import ru.practicum.mnsvc.utils.Util;
-
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,19 +42,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDto patchCategory(CategoryDto dto) {
+    public CategoryDto patchCategory(CategoryDto dto, Long catId) {
         Category category = categoryRepository.findByName(dto.getName()).orElse(null);
         if (category != null) {
-            throw new ForbiddenException("Category with name=" + dto.getName() + " already exists");
+            return CategoryMapper.toDto(category);
+        } else {
+            Category newCategory = CategoryMapper.toModel(dto);
+            return CategoryMapper.toDto(categoryRepository.save(newCategory));
         }
-        Category pathingCat = categoryRepository.findById(dto.getId()).orElse(null);
-        if (pathingCat == null) {
-            throw new NotFoundException(Util.getCategoryNotFoundMessage(dto.getId()));
-        }
-
-        Category newCat = CategoryMapper.toModel(dto);
-        pathingCat = categoryRepository.save(newCat);
-        return CategoryMapper.toDto(pathingCat);
     }
 
     @Override

@@ -12,7 +12,7 @@ public interface CategoryService {
 
     CategoryDto findById(Long catId);
 
-    CategoryDto patchCategory(CategoryDto dto);
+    CategoryDto patchCategory(CategoryDto dto, Long catId);
 
     CategoryDto addNewCategory(NewCategoryDto dto);
 

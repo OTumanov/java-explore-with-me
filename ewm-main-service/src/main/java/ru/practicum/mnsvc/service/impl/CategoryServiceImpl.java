@@ -43,13 +43,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto patchCategory(CategoryDto dto, Long catId) {
-        Category category = categoryRepository.findByName(dto.getName()).orElse(null);
-        if (category != null) {
-            return CategoryMapper.toDto(category);
-        } else {
-            Category newCategory = CategoryMapper.toModel(dto);
-            return CategoryMapper.toDto(categoryRepository.save(newCategory));
-        }
+        Category category = CategoryMapper.toModel(dto);
+        category.setId(catId);
+        return CategoryMapper.toDto(categoryRepository.save(category));
     }
 
     @Override

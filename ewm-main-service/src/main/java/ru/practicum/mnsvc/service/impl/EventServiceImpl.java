@@ -2,6 +2,7 @@ package ru.practicum.mnsvc.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -289,7 +290,7 @@ public class EventServiceImpl implements EventService {
                 throw new ForbiddenException("Событие не может быть отредактировано менее, чем за час до события");
             }
             if (!event.getState().equals(PublicationState.PENDING)) {
-                throw new ForbiddenException("Событие должно быть в ожидании публикации");
+                throw new DataIntegrityViolationException("Событие должно быть в ожидании публикации");
             }
 
             event.setPublishedOn(LocalDateTime.now());
@@ -301,7 +302,7 @@ public class EventServiceImpl implements EventService {
         } else if (dto.getStateAction() == StateAction.REJECT_EVENT) {
             Event event = checkEvent(eventId);
             if (event.getState().equals(PublicationState.PUBLISHED)) {
-                throw new ForbiddenException("Нельзя отклонить опубликованное событие");
+                throw new DataIntegrityViolationException("Нельзя отклонить опубликованное событие");
             }
             event.setState(PublicationState.CANCELED);
             event = eventRepository.save(event);

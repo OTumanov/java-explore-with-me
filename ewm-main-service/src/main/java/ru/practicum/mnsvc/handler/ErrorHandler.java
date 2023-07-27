@@ -2,6 +2,7 @@ package ru.practicum.mnsvc.handler;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -60,6 +61,17 @@ public class ErrorHandler {
                 .message(ex.getMessage())
                 .reason("The required object was not found.")
                 .status(Status.NOT_FOUND)
+                .build();
+    }
+
+    //    409
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handle(DataIntegrityViolationException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .reason("Conflict of data")
+                .status(Status.CONFLICT)
                 .build();
     }
 

@@ -27,7 +27,7 @@ public class CategoryAdminController {
 
     @PatchMapping("/{catId}")
     public ResponseEntity<CategoryDto> patchCategory(@Validated @RequestBody CategoryDto dto,
-                                     @PathVariable Long catId) {
+                                                     @PathVariable Long catId) {
         log.info("Изменение категории {} на {}", catId, dto);
         return new ResponseEntity<>(categoryService.patchCategory(dto, catId), HttpStatus.OK);
     }

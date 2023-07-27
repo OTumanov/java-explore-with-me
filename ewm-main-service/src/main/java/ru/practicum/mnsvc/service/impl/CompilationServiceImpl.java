@@ -27,6 +27,7 @@ import ru.practicum.mnsvc.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ru.practicum.mnsvc.utils.Util.*;
@@ -70,23 +71,27 @@ public class CompilationServiceImpl implements CompilationService {
         return CompilationMapper.toResponseDto(compilation, eventDtos);
     }
 
+    @Transactional
     @Override
     public CompilationDto addNewCompilation(NewCompilationDto dto) {
 
-        if (dto.getEvents().isEmpty()) {
-            return null;
+        if (dto.getEvents() == null || dto.getEvents().isEmpty()) {
+            Compilation compilation = CompilationMapper.toModel(dto);
+            compilation = compilationRepository.save(compilation);
+
+            return CompilationMapper.toResponseDto(compilation);
         }
+
         List<Event> events = new ArrayList<>();
 
         for (Integer eventId : dto.getEvents()) {
             events.add(checkEvent(Long.valueOf(eventId)));
-            Compilation compilation = CompilationMapper.toModel(dto, events);
-            compilation = compilationRepository.save(compilation);
-            List<EventShortDto> eventDtos = getEventShortDtoList(events);
-            return CompilationMapper.toResponseDto(compilation, eventDtos);
         }
+        Compilation compilation = CompilationMapper.toModel(dto, events);
+        compilation = compilationRepository.save(compilation);
+        List<EventShortDto> eventDtos = getEventShortDtoList(events);
 
-        return null;
+        return CompilationMapper.toResponseDto(compilation, eventDtos);
     }
 
     @Override
@@ -97,7 +102,17 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
-        return null;
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка не найдена"));
+        if (dto.getEvents() != null) {
+            List<Event> events = new ArrayList<>();
+            for (Integer eventId : dto.getEvents()) {
+                events.add(checkEvent(Long.valueOf(eventId)));
+            }
+            compilation.setEvents(events);
+        }
+        compilation.setTitle(Objects.requireNonNullElse(dto.getTitle(), compilation.getTitle()));
+        compilation.setPinned(Objects.requireNonNullElse(dto.isPinned(), compilation.getPinned()));
+        return CompilationMapper.toResponseDto(compilationRepository.save(compilation));
     }
 
 //    @Override

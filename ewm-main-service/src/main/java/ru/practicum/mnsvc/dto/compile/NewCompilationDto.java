@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class NewCompilationDto {
     private Boolean pinned;
 
     @NotEmpty
-    @Length(min = 1, max = 50, message = "Название категории должно быть от 1 до 50 символов")
+    @NotBlank
+    @Length(min = 1, max = 50, message = "Название подборки должно быть от 1 до 50 символов")
     private String title;
 }

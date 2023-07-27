@@ -8,7 +8,9 @@ import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.model.Compilation;
 import ru.practicum.mnsvc.model.Event;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CompilationMapper {
@@ -16,7 +18,15 @@ public final class CompilationMapper {
     public static Compilation toModel(NewCompilationDto dto, List<Event> events) {
         return Compilation.builder()
                 .events(events)
-                .pinned(dto.getPinned())
+                .pinned(Objects.requireNonNullElse(dto.getPinned(), false))
+                .title(dto.getTitle())
+                .build();
+    }
+
+    public static Compilation toModel(NewCompilationDto dto) {
+        return Compilation.builder()
+                .events(new ArrayList<>())
+                .pinned(Objects.requireNonNullElse(dto.getPinned(), false))
                 .title(dto.getTitle())
                 .build();
     }
@@ -25,6 +35,15 @@ public final class CompilationMapper {
         return CompilationDto.builder()
                 .events(eventsDto)
                 .id(compilation.getId())
+                .pinned(compilation.getPinned())
+                .title(compilation.getTitle())
+                .build();
+    }
+
+    public static CompilationDto toResponseDto(Compilation compilation) {
+        return CompilationDto.builder()
+                .id(compilation.getId())
+                .events(new ArrayList<>())
                 .pinned(compilation.getPinned())
                 .title(compilation.getTitle())
                 .build();

@@ -3,7 +3,6 @@ package ru.practicum.mnsvc.controller.priv;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.events.EventFullDto;
@@ -52,10 +51,11 @@ public class EventPrivateController {
 
 
     @PostMapping()
-    public ResponseEntity<EventFullDto> postEvent(@Positive @PathVariable Long userId,
-                                                  @Validated @RequestBody NewEventDto dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public EventFullDto postEvent(@Positive @PathVariable Long userId,
+                                  @Validated @RequestBody NewEventDto dto) {
         log.info("Добавление нового события {} {}", userId, dto);
-        return new ResponseEntity<>(eventService.postEvent(userId, dto), HttpStatus.CREATED);
+        return eventService.postEvent(userId, dto);
     }
 
 
@@ -68,6 +68,7 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}/requests")
+    @ResponseStatus(HttpStatus.OK)
     public ParticipationDto confirmParticipation(@Positive @PathVariable Long userId,
                                                  @Positive @PathVariable Long eventId,
                                                  @RequestBody EventRequestStatusUpdateDto dto) {

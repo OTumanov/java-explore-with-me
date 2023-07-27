@@ -27,5 +27,4 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
             "from Participation as p where p.event.id in ?1 and p.state = ?2 group by p.event.id")
     List<UtilDto> countParticipationByEventIds(List<Long> eventIds, ParticipationState state);
 
-//    List<Participation> findByIdIn(List<Integer> requestIds);
 }

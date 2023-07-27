@@ -84,7 +84,7 @@ public class ParticipationServiceImpl implements ParticipationService {
         Participation participation = participationRepository.findByRequesterIdAndId(requesterId, requestId)
                 .orElseThrow(() -> new NotFoundException("Participation not found requesterId: "
                         + requesterId + " requestId: " + requestId));
-        participation.setState(ParticipationState.REJECTED);
+        participation.setState(ParticipationState.CANCELED);
         return ParticipationMapper.toDto(participation);
     }
 

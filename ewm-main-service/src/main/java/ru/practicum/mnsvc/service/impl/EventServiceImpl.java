@@ -107,10 +107,14 @@ public class EventServiceImpl implements EventService {
             throw new DataIntegrityViolationException("Отменить возможно только события в ожидании или отменённые");
         }
 
-        updateEvent(event, dto);
         if (event.getState().equals(PublicationState.CANCELED)) {
             event.setState(PublicationState.PENDING);
         }
+
+        if (dto.getStateAction().equals(UpdateEventUserState.CANCEL_REVIEW)) {
+            event.setState(PublicationState.CANCELED);
+        }
+        updateEvent(event, dto);
         event = eventRepository.save(event);
         return EventMapper.toEventFullDto(event,
                 participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED),
@@ -179,29 +183,95 @@ public class EventServiceImpl implements EventService {
     public ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto) {
         Event event = checkEvent(eventId, userId);
 
-        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-            throw new ForbiddenException("Confirmation of the participation is not required");
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ForbiddenException("Это событие не принадлежит данному пользователю!");
         }
+
+        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
+            throw new ForbiddenException("Подтверждение участия не требуется");
+        }
+
         if (event.getParticipantLimit().equals(participationRepository
                 .getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED))) {
             throw new DataIntegrityViolationException("Достигнут лимит участников в данном событии");
         }
 
-        for (Integer pId : dto.getRequestIds()) {
 
-            Participation participation = participationRepository.findById(Long.valueOf(pId)).orElseThrow(() -> new NotFoundException("Нет такого!"));
+        for (Long pId : dto.getRequestIds()) {
+
+            Participation participation = participationRepository.findById(pId).orElseThrow(() -> new NotFoundException("Нет такого!"));
 
             if (participation.getState().equals(ParticipationState.CONFIRMED)) {
-                throw new ForbiddenException("the request for participation has already been confirmed");
+                throw new ForbiddenException("Заявка на участие уже утверждена");
             }
 
-            participation.setState(ParticipationState.CONFIRMED);
+            if (dto.getStatus().equals(ParticipationState.REJECTED)) {
+                participation.setState(ParticipationState.REJECTED);
+            } else {
+                participation.setState(ParticipationState.CONFIRMED);
+            }
             checkParticipationLimit(event, participationRepository);
             participation = participationRepository.save(participation);
             return ParticipationMapper.toDto(participation);
         }
         return null;
     }
+
+
+
+
+
+
+
+//    Event event = findObjectInRepository.getEventById(eventId);
+//    User user = findObjectInRepository.getUserById(userId);
+//    checkOwnerEvent(event, user);
+//        if (!event.getState().equals(EventState.PUBLISHED)) {
+//        throw new ConflictException("нет опубликованного события по id = " + eventId);
+//    }
+//        requestAndViewsService.confirmedRequestsForOneEvent(event);
+//        if (event.getParticipantLimit() == 0 || !event.isRequestModeration()) {
+//        throw new ForbiddenException("Подтверждение заявок для данного события не требуется");
+//    } else if (event.getParticipantLimit() <= event.getConfirmedRequests()) {
+//        throw new ConflictException("Достигнут лимит по заявкам на данное событие с id= " + eventId);
+//    }
+//    List<Request> requests = requestRepository.findAllByIdIsIn(eventRequest.getRequestIds());
+//    List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+//    List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
+//        for (Request request : requests) {
+//        if (!request.getStatus().equals(RequestStatus.PENDING)) {
+//            throw new ConflictException("Статус заявки  на участие с id = " + request.getId() +
+//                    " не позволяет подтвердить участие, статус = " + request.getStatus());
+//        }
+//    }
+//        if (eventRequest.getStatus().equals(RequestStatusDto.CONFIRMED)) {
+//        for (Request request : requests) {
+//            if (event.getParticipantLimit() > event.getConfirmedRequests()) {
+//                request.setStatus(RequestStatus.CONFIRMED);
+//                confirmedRequests.add(RequestMapper.requestToParticipationRequestDto(request));
+//            } else {
+//                request.setStatus(RequestStatus.REJECTED);
+//                rejectedRequests.add(RequestMapper.requestToParticipationRequestDto(request));
+//            }
+//        }
+//    } else {
+//        for (Request request : requests) {
+//            request.setStatus(RequestStatus.REJECTED);
+//            rejectedRequests.add(RequestMapper.requestToParticipationRequestDto(request));
+//        }
+//    }
+//        requestRepository.saveAll(requests);
+//        return EventRequestStatusUpdateResult.builder()
+//                .confirmedRequests(confirmedRequests)
+//                .rejectedRequests(rejectedRequests)
+//                .build();
+
+//    private void checkOwnerEvent(Event event, User user) {
+//        if (!event.getInitiator().getId().equals(user.getId())) {
+//            throw new ForbiddenException("Событие с id=" + event.getId()
+//                    + " не принадлежит пользователю с id=" + user.getId());
+//        }
+//    }
 
     @Override
     @Transactional
@@ -294,6 +364,7 @@ public class EventServiceImpl implements EventService {
             }
 
             event.setPublishedOn(LocalDateTime.now());
+            updateEvent(event, dto);
             event.setState(PublicationState.PUBLISHED);
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
@@ -310,7 +381,7 @@ public class EventServiceImpl implements EventService {
             Long views = client.getViewsByEventId(event.getId()).getBody();
             return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else if (DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
-                throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
+            throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
         } else if (dto.getStateAction() == null) {
             Event event = checkEvent(eventId);
             updateEvent(event, dto);
@@ -429,7 +500,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Нет такого пользователя!"));
     }
 
-    private Category checkCategory(Long catId){
+    private Category checkCategory(Long catId) {
         return categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Нет такой категории"));
     }
 }

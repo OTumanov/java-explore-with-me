@@ -104,7 +104,7 @@ public class EventServiceImpl implements EventService {
         Event event = checkEvent(eventId, userId);
 
         if (event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new ForbiddenException("Only pending or canceled events can be changed");
+            throw new DataIntegrityViolationException("Отменить возможно только события в ожидании или отменённые");
         }
 
         updateEvent(event, dto);
@@ -184,7 +184,7 @@ public class EventServiceImpl implements EventService {
         }
         if (event.getParticipantLimit().equals(participationRepository
                 .getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED))) {
-            throw new ForbiddenException("the limit of participants in the event has been reached");
+            throw new DataIntegrityViolationException("Достигнут лимит участников в данном событии");
         }
 
         for (Integer pId : dto.getRequestIds()) {

@@ -1,10 +1,10 @@
 package ru.practicum.mnsvc.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mnsvc.dto.participation.ParticipationDto;
-import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.ParticipationMapper;
 import ru.practicum.mnsvc.model.*;
@@ -37,7 +37,7 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Override
     @Transactional
     public ParticipationDto addParticipationQuery(Long userId, Long eventId) {
-        if(eventId == null) {
+        if (eventId == null) {
             throw new IllegalArgumentException("event id is null");
         }
         User user = checkUser(userId);
@@ -47,19 +47,19 @@ public class ParticipationServiceImpl implements ParticipationService {
                 participationRepository.findByEventIdAndRequesterId(eventId, userId).orElse(null);
 
         if (participation != null) {
-            return ParticipationMapper.toDto(participation);
+            throw new DataIntegrityViolationException("Пользователь уже принял участие в событии");
         }
         if (!event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new ForbiddenException("Нельзя принять участие в событии, которое еще не опубликовано");
+            throw new DataIntegrityViolationException("Нельзя принять участие в событии, которое еще не опубликовано");
         }
         if (event.getInitiator().getId().equals(userId)) {
-            throw new ForbiddenException("Пользователь с этим id не может участвовать в событии");
+            throw new DataIntegrityViolationException("Пользователь с этим id не может участвовать в событии");
         }
 
         int confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
 
         if (event.getParticipantLimit() != 0 && confirmedRequests >= event.getParticipantLimit()) {
-            throw new ForbiddenException("Нельзя принять участие в событии, которое превышает лимит участников");
+            throw new DataIntegrityViolationException("Нельзя принять участие в событии, которое превышает лимит участников");
         }
 
         Participation newParticipation = Participation.builder()

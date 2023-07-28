@@ -103,6 +103,10 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest dto) {
         Event event = checkEvent(eventId, userId);
 
+        if(dto.getEventDate() != null && (!dto.getEventDate().isEmpty()) && DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Невозможно изменить событие находящееся в прошлом!");
+        }
+
         if (event.getState().equals(PublicationState.PUBLISHED)) {
             throw new DataIntegrityViolationException("Отменить возможно только события в ожидании или отменённые");
         }
@@ -111,7 +115,7 @@ public class EventServiceImpl implements EventService {
             event.setState(PublicationState.PENDING);
         }
 
-        if (dto.getStateAction().equals(UpdateEventUserState.CANCEL_REVIEW)) {
+        if (event.getState().equals(UpdateEventUserState.CANCEL_REVIEW)) {
             event.setState(PublicationState.CANCELED);
         }
         updateEvent(event, dto);

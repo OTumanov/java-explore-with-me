@@ -63,7 +63,7 @@ public class EventPrivateController {
     public EventFullDto patchEvent(@Positive @PathVariable Long userId,
                                    @Positive @PathVariable Long eventId,
                                    @Validated @RequestBody UpdateEventUserRequest dto) {
-        log.info("Изменения события {}, добавленного текущим пользователем {}", eventId, userId);
+        log.info("Изменения события {}, добавленного текущим пользователем {} -- {}", eventId, userId, dto);
         return eventService.patchEvent(userId, eventId, dto);
     }
 

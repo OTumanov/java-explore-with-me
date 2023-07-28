@@ -1,18 +1,15 @@
 package ru.practicum.mnsvc.dto.events;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.mnsvc.dto.category.CategoryDto;
 import ru.practicum.mnsvc.dto.users.UserShortDto;
 
 import javax.validation.constraints.NotEmpty;
 
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventShortDto {
     @NotEmpty
     private String annotation;

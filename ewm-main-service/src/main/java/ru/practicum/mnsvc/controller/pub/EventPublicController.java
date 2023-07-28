@@ -32,8 +32,6 @@ public class EventPublicController {
                                             HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        log.info("Подключение с ip-адреса: {}", clientIp);
-        log.info("Подключение к эндпоинту: http://localhost:8080{}", endpoint);
         log.info("Получение событий с возможностью фильтрации");
 
         EventSearchParams criteria = new EventSearchParams(
@@ -57,7 +55,7 @@ public class EventPublicController {
         String endpoint = request.getRequestURI();
         log.info("client ip: {}", clientIp);
         log.info("endpoint path: {}", endpoint);
-        log.info("Получение подробной информации об опубликованном событии по его индентификатору {}", id);
+        log.info("Получение подробной информации об опубликованном событии по его идентификатору {}", id);
 
         return eventService.findEventById(id, clientIp, endpoint);
     }

@@ -50,8 +50,6 @@ public class EventAdminController {
                                      HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        log.info("Подключение с ip-адреса: {}", clientIp);
-        log.info("Подключение к эндпоинту: http://localhost:8080{}", endpoint);
         log.info("Редактирование данных события {} и его статуса (отклонение/публикация) - {}", eventId, dto);
         return eventService.publishEvent(eventId, dto, clientIp, endpoint);
     }

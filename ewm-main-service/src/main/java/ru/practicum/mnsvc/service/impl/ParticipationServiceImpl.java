@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.mnsvc.dto.participation.ParticipationDto;
+import ru.practicum.mnsvc.dto.participation.ParticipationRequestDto;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.mapper.ParticipationMapper;
 import ru.practicum.mnsvc.model.*;
@@ -28,7 +28,7 @@ public class ParticipationServiceImpl implements ParticipationService {
     private final UserRepository userRepository;
 
     @Override
-    public List<ParticipationDto> getInfoAboutAllParticipation(Long userId) {
+    public List<ParticipationRequestDto> getInfoAboutAllParticipation(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException(Util.getUserNotFoundMessage(userId)));
         List<Participation> participations = participationRepository.findAllByRequesterId(userId);
         return participations.stream().map(ParticipationMapper::toDto).collect(Collectors.toList());
@@ -36,7 +36,7 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     @Transactional
-    public ParticipationDto addParticipationQuery(Long userId, Long eventId) {
+    public ParticipationRequestDto addParticipationQuery(Long userId, Long eventId) {
         if (eventId == null) {
             throw new IllegalArgumentException("event id is null");
         }
@@ -80,7 +80,7 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     @Transactional
-    public ParticipationDto cancelParticipation(Long requesterId, Long requestId) {
+    public ParticipationRequestDto cancelParticipation(Long requesterId, Long requestId) {
         Participation participation = participationRepository.findByRequesterIdAndId(requesterId, requestId)
                 .orElseThrow(() -> new NotFoundException("Participation not found requesterId: "
                         + requesterId + " requestId: " + requestId));

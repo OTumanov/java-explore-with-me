@@ -3,7 +3,6 @@ package ru.practicum.mnsvc.controller.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mnsvc.dto.compile.CompilationDto;
@@ -21,9 +20,10 @@ public class CompilationAdminController {
     private final CompilationService compilationService;
 
     @PostMapping
-    public ResponseEntity<CompilationDto> addNewCompilation(@Validated @RequestBody NewCompilationDto dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CompilationDto addNewCompilation(@Validated @RequestBody NewCompilationDto dto) {
         log.info("Добавить новую подборку событий - {}", dto);
-        return new ResponseEntity<>(compilationService.addNewCompilation(dto), HttpStatus.CREATED);
+        return compilationService.addNewCompilation(dto);
     }
 
 

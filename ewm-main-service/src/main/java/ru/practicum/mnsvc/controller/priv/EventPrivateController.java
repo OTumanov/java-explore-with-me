@@ -9,8 +9,9 @@ import ru.practicum.mnsvc.dto.events.EventFullDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.dto.events.NewEventDto;
 import ru.practicum.mnsvc.dto.events.UpdateEventUserRequest;
-import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
-import ru.practicum.mnsvc.dto.participation.ParticipationDto;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateRequest;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateResult;
+import ru.practicum.mnsvc.dto.participation.ParticipationRequestDto;
 import ru.practicum.mnsvc.service.EventService;
 
 import javax.validation.constraints.Positive;
@@ -43,8 +44,8 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}/requests")
-    public List<ParticipationDto> getInfoAboutEventParticipation(@Positive @PathVariable Long userId,
-                                                                 @Positive @PathVariable Long eventId) {
+    public List<ParticipationRequestDto> getInfoAboutEventParticipation(@Positive @PathVariable Long userId,
+                                                                        @Positive @PathVariable Long eventId) {
         log.info("Получение информации о запросах на участие в событии {} текущего пользователя {}", eventId, userId);
         return eventService.getInfoAboutEventParticipation(userId, eventId);
     }
@@ -69,10 +70,11 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public ParticipationDto confirmParticipation(@Positive @PathVariable Long userId,
-                                                 @Positive @PathVariable Long eventId,
-                                                 @RequestBody EventRequestStatusUpdateDto dto) {
-        log.info("Изменение статуса (подтверждение или отмена - {}) заявок на участие в событии {} от текущего пользователя {}", dto, eventId, userId);
+    public EventRequestStatusUpdateResult confirmParticipation(@Positive @PathVariable Long userId,
+                                                               @Positive @PathVariable Long eventId,
+                                                               @RequestBody EventRequestStatusUpdateRequest dto) {
+        log.info("Изменение статуса (подтверждение или отмена - {}) " +
+                "заявок на участие в событии {} от текущего пользователя {}", dto, eventId, userId);
         return eventService.confirmParticipation(userId, eventId, dto);
     }
 }

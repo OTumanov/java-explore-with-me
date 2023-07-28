@@ -1,8 +1,9 @@
 package ru.practicum.mnsvc.service;
 
 import ru.practicum.mnsvc.dto.events.*;
-import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateDto;
-import ru.practicum.mnsvc.dto.participation.ParticipationDto;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateResult;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateRequest;
+import ru.practicum.mnsvc.dto.participation.ParticipationRequestDto;
 import ru.practicum.mnsvc.model.EventSearchParams;
 
 import java.util.List;
@@ -22,11 +23,11 @@ public interface EventService {
 
     EventFullDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto);
 
-    List<ParticipationDto> getInfoAboutEventParticipation(Long userId, Long eventId);
+    List<ParticipationRequestDto> getInfoAboutEventParticipation(Long userId, Long eventId);
 
-    ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto);
+    EventRequestStatusUpdateResult confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateRequest dto);
 
-    ParticipationDto rejectParticipation(Long userId, Long eventId, Long reqId);
+    ParticipationRequestDto rejectParticipation(Long userId, Long eventId, Long reqId);
 
     List<EventFullDto> findEventsByConditions(EventSearchParams params);
 

@@ -2,12 +2,11 @@ package ru.practicum.mnsvc.dto.participation;
 
 import lombok.*;
 
-@Getter
-@Setter
-@ToString
+@Data
 @Builder
 @AllArgsConstructor
-public class ParticipationDto {
+@NoArgsConstructor
+public class ParticipationRequestDto {
     private String created;
     private Long event;
     private Long id;

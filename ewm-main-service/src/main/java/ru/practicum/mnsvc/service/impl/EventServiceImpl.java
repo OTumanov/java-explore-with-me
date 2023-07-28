@@ -115,7 +115,7 @@ public class EventServiceImpl implements EventService {
             event.setState(PublicationState.PENDING);
         }
 
-        if (event.getState().equals(UpdateEventUserState.CANCEL_REVIEW)) {
+        if (dto.getStateAction() != null && dto.getStateAction().equals(UpdateEventUserState.CANCEL_REVIEW)) {
             event.setState(PublicationState.CANCELED);
         }
         updateEvent(event, dto);
@@ -224,58 +224,33 @@ public class EventServiceImpl implements EventService {
 
 
 
+//    @Override
+//    @Transactional
+//        public ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto) {
+//
+//        Event event = checkEvent(eventId, userId);
+////
+////        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
+////            throw new ForbiddenException("Confirmation of the participation is not required");
+////        }
+////        if (event.getParticipantLimit().equals(participationRepository
+////                .getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED))) {
+////            throw new ForbiddenException("the limit of participants in the event has been reached");
+////        }
+////
+//        Participation participation = participationRepository.findById(dto.getRequestIds().get(0))
+//                .orElseThrow(() -> new NotFoundException(Util.getParticipationNotFoundMessage(dto.getRequestIds().get(0))));
+//
+////        if (participation.getState().equals(ParticipationState.CONFIRMED)) {
+////            throw new ForbiddenException("the request for participation has already been confirmed");
+////        }
+//
+//        participation.setState(ParticipationState.CONFIRMED);
+//        checkParticipationLimit(event, participationRepository);
+//        participation = participationRepository.save(participation);
+//        return ParticipationMapper.toDto(participation);
+//    }
 
-
-
-//    Event event = findObjectInRepository.getEventById(eventId);
-//    User user = findObjectInRepository.getUserById(userId);
-//    checkOwnerEvent(event, user);
-//        if (!event.getState().equals(EventState.PUBLISHED)) {
-//        throw new ConflictException("нет опубликованного события по id = " + eventId);
-//    }
-//        requestAndViewsService.confirmedRequestsForOneEvent(event);
-//        if (event.getParticipantLimit() == 0 || !event.isRequestModeration()) {
-//        throw new ForbiddenException("Подтверждение заявок для данного события не требуется");
-//    } else if (event.getParticipantLimit() <= event.getConfirmedRequests()) {
-//        throw new ConflictException("Достигнут лимит по заявкам на данное событие с id= " + eventId);
-//    }
-//    List<Request> requests = requestRepository.findAllByIdIsIn(eventRequest.getRequestIds());
-//    List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
-//    List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
-//        for (Request request : requests) {
-//        if (!request.getStatus().equals(RequestStatus.PENDING)) {
-//            throw new ConflictException("Статус заявки  на участие с id = " + request.getId() +
-//                    " не позволяет подтвердить участие, статус = " + request.getStatus());
-//        }
-//    }
-//        if (eventRequest.getStatus().equals(RequestStatusDto.CONFIRMED)) {
-//        for (Request request : requests) {
-//            if (event.getParticipantLimit() > event.getConfirmedRequests()) {
-//                request.setStatus(RequestStatus.CONFIRMED);
-//                confirmedRequests.add(RequestMapper.requestToParticipationRequestDto(request));
-//            } else {
-//                request.setStatus(RequestStatus.REJECTED);
-//                rejectedRequests.add(RequestMapper.requestToParticipationRequestDto(request));
-//            }
-//        }
-//    } else {
-//        for (Request request : requests) {
-//            request.setStatus(RequestStatus.REJECTED);
-//            rejectedRequests.add(RequestMapper.requestToParticipationRequestDto(request));
-//        }
-//    }
-//        requestRepository.saveAll(requests);
-//        return EventRequestStatusUpdateResult.builder()
-//                .confirmedRequests(confirmedRequests)
-//                .rejectedRequests(rejectedRequests)
-//                .build();
-
-//    private void checkOwnerEvent(Event event, User user) {
-//        if (!event.getInitiator().getId().equals(user.getId())) {
-//            throw new ForbiddenException("Событие с id=" + event.getId()
-//                    + " не принадлежит пользователю с id=" + user.getId());
-//        }
-//    }
 
     @Override
     @Transactional

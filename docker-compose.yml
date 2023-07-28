@@ -13,7 +13,7 @@ services:
       - DB_NAME=ewm_stats
       - SPRING_DATASOURCE_USERNAME=owner
       - SPRING_DATASOURCE_PASSWORD=password
-      - DB_HOST=stats-service-db
+      - DB_HOST=ewm-stats-db
       - DB_PORT=6541
 
   ewm-stats-db:

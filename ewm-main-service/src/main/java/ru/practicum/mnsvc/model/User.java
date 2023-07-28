@@ -1,15 +1,16 @@
 package ru.practicum.mnsvc.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
 @Builder
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {

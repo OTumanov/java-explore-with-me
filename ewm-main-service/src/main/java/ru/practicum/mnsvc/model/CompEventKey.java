@@ -1,16 +1,16 @@
 package ru.practicum.mnsvc.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Getter
-@Setter
+@Data
 @Builder
-@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompEventKey implements Serializable {
     private Long compilationId;
     private Long eventId;

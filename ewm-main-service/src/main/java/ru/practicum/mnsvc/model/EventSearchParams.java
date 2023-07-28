@@ -1,15 +1,16 @@
 package ru.practicum.mnsvc.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.mnsvc.mapper.DateTimeMapper;
 import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EventSearchParams {
     private List<Long> userIds;
     private String text;
@@ -46,7 +47,6 @@ public class EventSearchParams {
         this.size = size;
     }
 
-
     //EventPublicController
     public EventSearchParams(String text,
                              List<Long> categories,
@@ -74,22 +74,5 @@ public class EventSearchParams {
         }
         this.from = from;
         this.size = size;
-    }
-
-    @Override
-    public String toString() {
-        return "EventSearchParams{" +
-                "userIds=" + userIds +
-                ", text='" + text + '\'' +
-                ", states=" + states +
-                ", categories=" + categories +
-                ", rangeStart=" + rangeStart +
-                ", rangeEnd=" + rangeEnd +
-                ", paid=" + paid +
-                ", onlyAvailable=" + onlyAvailable +
-                ", from=" + from +
-                ", size=" + size +
-                ", sort=" + sort +
-                '}';
     }
 }

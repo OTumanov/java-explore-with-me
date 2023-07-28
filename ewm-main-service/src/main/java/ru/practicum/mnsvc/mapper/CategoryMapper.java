@@ -6,9 +6,6 @@ import ru.practicum.mnsvc.model.Category;
 
 public class CategoryMapper {
 
-    private CategoryMapper() {
-    }
-
     public static Category toModel(NewCategoryDto dto) {
         return Category.builder()
                 .id(null)

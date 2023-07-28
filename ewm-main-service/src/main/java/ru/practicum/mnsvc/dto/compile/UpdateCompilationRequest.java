@@ -1,6 +1,9 @@
 package ru.practicum.mnsvc.dto.compile;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.List;

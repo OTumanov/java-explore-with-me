@@ -4,12 +4,10 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
 @Builder
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "locations")
 public class Location {

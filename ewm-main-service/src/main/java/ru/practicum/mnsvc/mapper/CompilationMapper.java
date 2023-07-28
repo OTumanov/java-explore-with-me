@@ -1,7 +1,5 @@
 package ru.practicum.mnsvc.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import ru.practicum.mnsvc.dto.compile.CompilationDto;
 import ru.practicum.mnsvc.dto.compile.NewCompilationDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
@@ -12,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CompilationMapper {
 
     public static Compilation toModel(NewCompilationDto dto, List<Event> events) {

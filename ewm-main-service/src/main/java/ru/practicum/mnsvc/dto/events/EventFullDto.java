@@ -5,11 +5,10 @@ import ru.practicum.mnsvc.dto.category.CategoryDto;
 import ru.practicum.mnsvc.dto.users.UserShortDto;
 import ru.practicum.mnsvc.model.Location;
 
-@Getter
-@Setter
-@ToString
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventFullDto {
     private String annotation;
     private CategoryDto category;

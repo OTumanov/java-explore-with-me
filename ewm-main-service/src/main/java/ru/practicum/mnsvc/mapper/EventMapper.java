@@ -3,19 +3,12 @@ package ru.practicum.mnsvc.mapper;
 import ru.practicum.mnsvc.dto.events.EventFullDto;
 import ru.practicum.mnsvc.dto.events.EventShortDto;
 import ru.practicum.mnsvc.dto.events.NewEventDto;
-import ru.practicum.mnsvc.exceptions.NotFoundException;
 import ru.practicum.mnsvc.model.*;
-import ru.practicum.mnsvc.repository.CategoryRepository;
-import ru.practicum.mnsvc.repository.UserRepository;
-import ru.practicum.mnsvc.utils.Util;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class EventMapper {
-
-    private EventMapper() {
-    }
 
     public static Event toModel(NewEventDto dto, User initiator, Category category) {
         Event event = Event.builder()
@@ -28,7 +21,7 @@ public class EventMapper {
                 .initiator(initiator)
                 .location(dto.getLocation())
                 .paid(Objects.requireNonNullElse(dto.getPaid(), false))
-                .participantLimit(Objects.requireNonNullElse(dto.getParticipantLimit(),0))
+                .participantLimit(Objects.requireNonNullElse(dto.getParticipantLimit(), 0))
                 .publishedOn(null)
                 .requestModeration(Objects.requireNonNullElse(dto.getRequestModeration(), true))
                 .state(PublicationState.PENDING)
@@ -83,21 +76,5 @@ public class EventMapper {
         }
 
         return dto;
-    }
-
-    private static Category matchCategory(Long id, CategoryRepository repo) {
-        Category category = repo.findById(id).orElse(null);
-        if (category == null) {
-            throw new NotFoundException(Util.getCategoryNotFoundMessage(id));
-        }
-        return category;
-    }
-
-    private static User matchUser(Long userId, UserRepository repo) {
-        User user = repo.findById(userId).orElse(null);
-        if (user == null) {
-            throw new NotFoundException(Util.getUserNotFoundMessage(userId));
-        }
-        return user;
     }
 }

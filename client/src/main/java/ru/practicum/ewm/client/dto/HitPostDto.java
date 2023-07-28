@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class HitPostDto {
 
     private Long id;
-//    private String app;
+    private String app;
     private String uri;
     private String ip;
     private String timeStamp;

@@ -1,16 +1,15 @@
 package ru.practicum.mnsvc.dto.events;
 
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.mnsvc.model.UpdateEventUserState;
 
-import javax.validation.constraints.NotEmpty;
-
-@Getter
-@Setter
-@ToString
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventPatchDto {
     private String annotation;
     private Long category;

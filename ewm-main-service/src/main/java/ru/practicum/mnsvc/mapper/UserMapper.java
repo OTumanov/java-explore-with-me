@@ -6,13 +6,7 @@ import ru.practicum.mnsvc.dto.users.UserDto;
 import ru.practicum.mnsvc.dto.users.UserShortDto;
 import ru.practicum.mnsvc.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UserMapper {
-
-    private UserMapper() {
-    }
 
     public static User toModel(NewUserDto dto) {
         return User.builder()
@@ -35,13 +29,5 @@ public class UserMapper {
                 .id(user.getId())
                 .name(user.getName())
                 .build();
-    }
-
-    public static List<UserDto> toUserDtoList(List<User> users) {
-        List<UserDto> result = new ArrayList<>();
-        for (User u : users) {
-            result.add(toUserDto(u));
-        }
-        return result;
     }
 }

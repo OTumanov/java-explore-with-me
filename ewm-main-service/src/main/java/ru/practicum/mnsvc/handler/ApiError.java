@@ -2,11 +2,10 @@ package ru.practicum.mnsvc.handler;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ApiError {
     private Error[] errors;
     private String message;

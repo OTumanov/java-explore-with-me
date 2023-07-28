@@ -14,13 +14,17 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class HitDto {
     private Long id;
+
     @NotBlank
     private String app;
+
     @NotBlank
     private String uri;
+
     @NotBlank
     private String ip;
     private String timeStamp;
+
     @NotNull
     private Long eventId;
 }

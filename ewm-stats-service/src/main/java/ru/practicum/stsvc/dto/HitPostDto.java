@@ -10,8 +10,7 @@ import lombok.Data;
 public class HitPostDto {
 
     private Long id;
-    //    @NotBlank
-//    private String app;
+    private String app;
     private String uri;
     private String ip;
     private String timeStamp;

@@ -13,26 +13,23 @@ import java.time.LocalDateTime;
 @Entity(name = "hits")
 public class Hit {
 
-    public static final String IP_COLUMN_NAME = "ip";
-    public static final String URI_COLUMN_NAME = "uri";
-    public static final String ID_COLUMN_NAME = "hit_id";
-    public static final String APP_COLUMN_NAME = "app_id";
-    public static final String EVENT_ID_COLUMN_NAME = "event_id";
-    public static final String TIMESTAMP_COLUMN_NAME = "time_stamp";
-
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "hit_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long hitId;
-    //    @ManyToOne(optional = false)
-//    @JoinColumn(name = APP_COLUMN_NAME, nullable = false)
-//    private App app;
-    @Column(name = URI_COLUMN_NAME)
+
+    @Column(name = "app_name")
+    private String app;
+
+    @Column(name = "uri")
     private String uri;
-    @Column(name = IP_COLUMN_NAME, nullable = false)
+
+    @Column(name = "ip", nullable = false)
     private String ip;
-    @Column(name = TIMESTAMP_COLUMN_NAME)
+
+    @Column(name = "time_stamp")
     private LocalDateTime timeStamp;
-    @Column(name = EVENT_ID_COLUMN_NAME)
+
+    @Column(name = "event_id")
     private Long eventId;
 }

@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.EventClient;
 import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.mnsvc.dto.events.*;
-import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateResult;
 import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateRequest;
+import ru.practicum.mnsvc.dto.participation.EventRequestStatusUpdateResult;
 import ru.practicum.mnsvc.dto.participation.ParticipationRequestDto;
 import ru.practicum.mnsvc.exceptions.ForbiddenException;
 import ru.practicum.mnsvc.exceptions.NotFoundException;
@@ -156,27 +156,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional
-    public EventFullDto patchEventByIdAndOwnerId(Long userId, Long eventId, EventPatchDto dto) {
-
-        Event event = checkEvent(eventId, userId);
-
-        if (!event.getState().equals(PublicationState.CANCELED) || !event.getRequestModeration()) {
-            throw new IllegalArgumentException("Событие не может быть изменено! " +
-                    "Изменить можно только отмененное событие или находящееся на модерации. Сейчас же статус у этого события:" + event.getState());
-        }
-
-        if (dto.getStateAction().equals(UpdateEventUserState.SEND_TO_REVIEW)) {
-            event.setState(PublicationState.PENDING);
-        }
-
-        event = eventRepository.save(event);
-        Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
-        Long views = client.getViewsByEventId(event.getId()).getBody();
-        return EventMapper.toEventFullDto(event, confirmedRequests, views);
-    }
-
-    @Override
     public List<ParticipationRequestDto> getInfoAboutEventParticipation(Long userId, Long eventId) {
         eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
@@ -206,8 +185,7 @@ public class EventServiceImpl implements EventService {
         List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
 
         for (Integer pId : dto.getRequestIds()) {
-
-            Participation participation = participationRepository.findById(Long.valueOf(pId)).orElseThrow(() -> new NotFoundException("Нет такого!"));
+            Participation participation = checkParticipation(Long.valueOf(pId));
 
             if (participation.getState().equals(ParticipationState.CONFIRMED)) {
                 throw new ForbiddenException("Заявка на участие уже утверждена");
@@ -219,7 +197,6 @@ public class EventServiceImpl implements EventService {
                 participation.setState(ParticipationState.CONFIRMED);
             }
 
-
             checkParticipationLimit(event, participationRepository);
             participation = participationRepository.save(participation);
 
@@ -230,52 +207,6 @@ public class EventServiceImpl implements EventService {
             }
         }
         return ParticipationMapper.toEventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
-    }
-
-
-//    @Override
-//    @Transactional
-//        public ParticipationDto confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateDto dto) {
-//
-//        Event event = checkEvent(eventId, userId);
-////
-////        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-////            throw new ForbiddenException("Confirmation of the participation is not required");
-////        }
-////        if (event.getParticipantLimit().equals(participationRepository
-////                .getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED))) {
-////            throw new ForbiddenException("the limit of participants in the event has been reached");
-////        }
-////
-//        Participation participation = participationRepository.findById(dto.getRequestIds().get(0))
-//                .orElseThrow(() -> new NotFoundException(Util.getParticipationNotFoundMessage(dto.getRequestIds().get(0))));
-//
-////        if (participation.getState().equals(ParticipationState.CONFIRMED)) {
-////            throw new ForbiddenException("the request for participation has already been confirmed");
-////        }
-//
-//        participation.setState(ParticipationState.CONFIRMED);
-//        checkParticipationLimit(event, participationRepository);
-//        participation = participationRepository.save(participation);
-//        return ParticipationMapper.toDto(participation);
-//    }
-
-
-    @Override
-    @Transactional
-    public ParticipationRequestDto rejectParticipation(Long userId, Long eventId, Long reqId) {
-        eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
-
-        Participation participation = participationRepository.findById(reqId)
-                .orElseThrow(() -> new NotFoundException(Util.getParticipationNotFoundMessage(reqId)));
-
-        if (participation.getState().equals(ParticipationState.REJECTED)) {
-            throw new ForbiddenException("request for participation has already been rejected");
-        }
-        participation.setState(ParticipationState.REJECTED);
-        participation = participationRepository.save(participation);
-        return ParticipationMapper.toDto(participation);
     }
 
     @Override
@@ -294,48 +225,6 @@ public class EventServiceImpl implements EventService {
                         matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
                         matchLongValueByEventId(viewsEventIdRelations, event.getId())))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public EventFullDto editEvent(Long eventId, UpdateEventAdminRequest dto) {
-        Event editable = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(Util.getEventNotFoundMessage(eventId)));
-
-        if (dto.getAnnotation() != null) {
-            editable.setAnnotation(dto.getAnnotation());
-        }
-        if (dto.getCategory() != null) {
-            Category category = categoryRepository.findById(dto.getCategory())
-                    .orElseThrow(() -> new NotFoundException(Util.getCategoryNotFoundMessage(dto.getCategory())));
-            editable.setCategory(category);
-        }
-        if (dto.getDescription() != null) {
-            editable.setDescription(dto.getDescription());
-        }
-        if (dto.getEventDate() != null && isEventDateOk(dto.getEventDate())) {
-            editable.setEventDate(DateTimeMapper.toDateTime(dto.getEventDate()));
-        }
-        if (dto.getLocation() != null) {
-            editable.setLocation(dto.getLocation());
-        }
-        if (dto.getPaid() != null) {
-            editable.setPaid(dto.getPaid());
-        }
-        if (dto.getParticipantLimit() != null) {
-            editable.setParticipantLimit(dto.getParticipantLimit());
-        }
-        if (dto.getRequestModeration() != null) {
-            editable.setRequestModeration(dto.getRequestModeration());
-        }
-        if (dto.getTitle() != null) {
-            editable.setTitle(dto.getTitle());
-        }
-        editable = eventRepository.save(editable);
-        Integer confirmedRequests = participationRepository
-                .getConfirmedRequests(editable.getId(), ParticipationState.CONFIRMED);
-        Long views = client.getViewsByEventId(editable.getId()).getBody();
-        return EventMapper.toEventFullDto(editable, confirmedRequests, views);
     }
 
     @Override
@@ -382,11 +271,9 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-
     private void addHit(String endpoint, String clientIp, Long eventId, EventClient client) {
         client.postHit(endpoint, clientIp, eventId);
     }
-
 
     private void updateEvent(Event event, UpdateEventAdminRequest update) {
         if (update.getAnnotation() != null) {
@@ -446,7 +333,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-
     private void checkParticipationLimit(Event event, ParticipationRepository participationRepo) {
         if (event.getParticipantLimit().equals(participationRepo
                 .getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED))) {
@@ -462,7 +348,8 @@ public class EventServiceImpl implements EventService {
 
     private List<EventShortDto> prepareDataAndGetEventShortDtoList(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<UtilDto> confirmedReqEventIdRelations = participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
+        List<UtilDto> confirmedReqEventIdRelations =
+                participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
         List<UtilDto> viewsEventIdRelations = client.getViewsByEventIds(eventIds);
 
         return events.stream()
@@ -490,5 +377,9 @@ public class EventServiceImpl implements EventService {
 
     private Category checkCategory(Long catId) {
         return categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Нет такой категории"));
+    }
+
+    private Participation checkParticipation(Long id) {
+        return participationRepository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого!"));
     }
 }

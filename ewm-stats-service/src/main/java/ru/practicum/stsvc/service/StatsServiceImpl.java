@@ -1,15 +1,13 @@
 package ru.practicum.stsvc.service;
 
-import lombok.extern.slf4j.Slf4j;
-import ru.practicum.ewm.client.dto.BoxDto;
-import ru.practicum.ewm.client.dto.HitPostDto;
-import ru.practicum.ewm.client.dto.UtilDto;
-import ru.practicum.ewm.client.dto.HitResponseDto;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import ru.practicum.ewm.client.dto.BoxDto;
+import ru.practicum.ewm.client.dto.HitPostDto;
+import ru.practicum.ewm.client.dto.HitResponseDto;
+import ru.practicum.ewm.client.dto.UtilDto;
 import ru.practicum.stsvc.mapper.HitMapper;
 import ru.practicum.stsvc.model.Hit;
 import ru.practicum.stsvc.repository.HitRepository;
@@ -29,15 +27,11 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional
     public Hit postHit(HitPostDto dto) {
-        if(hitRepository.findOneByUriAndIp(dto.getUri(), dto.getIp()).isPresent()) {
+        if (hitRepository.findOneByUriAndIp(dto.getUri(), dto.getIp()).isPresent()) {
             log.info("Такой хит уже есть в базе -- {}.", hitRepository.findOneByUriAndIp(dto.getUri(), dto.getIp()).get());
+
             return HitMapper.toModel(dto);
         }
-//        App app = appRepo.findByName(dto.getApp()).orElse(null);
-//        if (app == null) {
-//            app = appRepo.save(new App(dto.getApp()));
-//        }
-//        Hit hit = HitMapper.toModel(dto, null);
         Hit hit = HitMapper.toModel(dto);
         hitRepository.save(hit);
 
@@ -55,7 +49,7 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public Long getViewsByEventId(Long eventId) {
-        log.info("Найдено просмотров данного события {}",hitRepository.getCountHitsByEventId(eventId));
+        log.info("Просмотров данного события {}", hitRepository.getCountHitsByEventId(eventId));
         return hitRepository.getCountHitsByEventId(eventId);
     }
 

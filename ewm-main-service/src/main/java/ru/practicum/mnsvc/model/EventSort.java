@@ -1,5 +1,9 @@
 package ru.practicum.mnsvc.model;
 
+
+import lombok.Getter;
+
+@Getter
 public enum EventSort {
     EVENT_DATE("eventDate"),
     VIEWS("views");
@@ -8,10 +12,6 @@ public enum EventSort {
 
     EventSort(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     @Override

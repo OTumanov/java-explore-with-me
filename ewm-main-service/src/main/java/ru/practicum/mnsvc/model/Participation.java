@@ -1,42 +1,37 @@
 package ru.practicum.mnsvc.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "participations")
 public class Participation {
-
-    public static final String EVENT_ID_COLUMN_NAME = "event_id";
-    public static final String STATE_COLUMN_NAME = "state";
-    public static final String CREATED_COLUMN_NAME = "created";
-    public static final String REQUESTER_ID_COLUMN_NAME = "requester_id";
-    public static final String ID_COLUMN_NAME = "participation_id";
-
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "participation_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = CREATED_COLUMN_NAME, nullable = false)
+    @Column(name = "created", nullable = false)
     private LocalDateTime created;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = EVENT_ID_COLUMN_NAME, nullable = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = REQUESTER_ID_COLUMN_NAME, nullable = false)
+    @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = STATE_COLUMN_NAME, nullable = false)
+    @Column(name = "state", nullable = false)
     private ParticipationState state;
 }

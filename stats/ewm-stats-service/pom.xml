@@ -9,7 +9,7 @@
         <groupId>ru.practicum</groupId>
         <artifactId>stats</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from ru.practucum.ems.repository -->
+<!--        <relativePath/> &lt;!&ndash; lookup parent from ru.practucum.ems.repository &ndash;&gt;-->
     </parent>
 
     <artifactId>ewm-stats-service</artifactId>

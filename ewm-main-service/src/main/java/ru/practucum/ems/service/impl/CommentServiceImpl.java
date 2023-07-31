@@ -1,6 +1,7 @@
 package ru.practucum.ems.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.sd.dto.UtilDto;
@@ -10,7 +11,6 @@ import ru.practucum.ems.dto.comments.CommentPostDto;
 import ru.practucum.ems.dto.comments.CommentResponseDto;
 import ru.practucum.ems.dto.events.EventShortDto;
 import ru.practucum.ems.dto.users.UserShortDto;
-import ru.practucum.ems.exceptions.ForbiddenException;
 import ru.practucum.ems.exceptions.NotFoundException;
 import ru.practucum.ems.mapper.CommentMapper;
 import ru.practucum.ems.mapper.EventMapper;
@@ -77,9 +77,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponseDto patchComment(CommentPatchDto dto, Long userId, String clientIp, String endpoint) {
+    public CommentResponseDto patchComment(CommentPatchDto dto, Long commentId, Long userId, String clientIp, String endpoint) {
         client.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
-        Comment comment = checkComment(dto);
+        Comment comment = checkComment(commentId);
         checkOwnerComment(dto, userId, comment);
         updateComment(comment, dto);
         return mapToCommentResponseDto(comment);
@@ -146,10 +146,6 @@ public class CommentServiceImpl implements CommentService {
                 .collect(Collectors.toList());
     }
 
-    private Comment checkComment(CommentPatchDto dto) {
-        return commentRepository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
-    }
-
     private Comment checkComment(Long id) {
         return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
     }
@@ -164,14 +160,13 @@ public class CommentServiceImpl implements CommentService {
 
     private void checkOwnerComment(CommentPatchDto dto, Long userId, Comment comment) {
         if (!comment.getOwner().getId().equals(userId)) {
-            throw new ForbiddenException("Этот пользователь не создавал такой комментарий и не является администратором");
+            throw new DataIntegrityViolationException("Этот пользователь не создавал такой комментарий и не является администратором");
         }
     }
 
     private void checkOwnerComment(Long ownerId, Long userId, Comment comment) {
         if (!ownerId.equals(userId)) {
-            throw new ForbiddenException("Пользователь id:" + userId
-                    + " не является создателем комментария или администратором");
+            throw new DataIntegrityViolationException("Пользователь не является создателем комментария или администратором");
         }
     }
 }

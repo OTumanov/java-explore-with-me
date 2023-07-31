@@ -33,15 +33,16 @@ public class CommentPrivateController {
         return commentService.postComment(dto, userId, eventId, clientIp, endpoint);
     }
 
-    @PatchMapping
+    @PatchMapping("/{commentId}/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public CommentResponseDto patchComment(@Validated @RequestBody CommentPatchDto dto,
-                                           @RequestParam("userId") Long userId,
+                                           @PathVariable("commentId") Long commentId,
+                                           @PathVariable("userId") Long userId,
                                            HttpServletRequest request) {
-        log.info("Обновление комментария id:{}, {} пользователем id:{}", dto.getId(), dto, userId);
+        log.info("Обновление комментария id:{}, {} пользователем id:{}", commentId, dto, userId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        return commentService.patchComment(dto, userId, clientIp, endpoint);
+        return commentService.patchComment(dto, commentId, userId, clientIp, endpoint);
     }
 
     @DeleteMapping("/{commentId}/user/{userId}")

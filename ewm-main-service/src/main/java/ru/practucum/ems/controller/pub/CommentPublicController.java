@@ -24,8 +24,7 @@ public class CommentPublicController {
     private final CommentService commentService;
 
     @GetMapping("/{commentId}")
-    public CommentResponseDto findCommentById(@Positive
-                                              @PathVariable @NotNull Long commentId,
+    public CommentResponseDto findCommentById(@Positive @PathVariable @NotNull Long commentId,
                                               HttpServletRequest request) {
         log.info("Просмотр комментария id:{}", commentId);
         String clientIp = request.getRemoteAddr();
@@ -34,8 +33,7 @@ public class CommentPublicController {
     }
 
     @GetMapping("/event/{eventId}")
-    public List<CommentResponseDto> findCommentsByEventId(@Positive
-                                                          @PathVariable @NotNull Long eventId,
+    public List<CommentResponseDto> findCommentsByEventId(@Positive @PathVariable @NotNull Long eventId,
                                                           HttpServletRequest request) {
         log.info("Просмотр комментариев события id:{}", eventId);
         String clientIp = request.getRemoteAddr();

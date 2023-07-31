@@ -9,9 +9,10 @@ import ru.practucum.ems.dto.comments.CommentPatchDto;
 import ru.practucum.ems.dto.comments.CommentPostDto;
 import ru.practucum.ems.dto.comments.CommentResponseDto;
 import ru.practucum.ems.service.CommentService;
+import ru.practucum.ems.utils.Util;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @Slf4j
 @RestController
@@ -23,25 +24,27 @@ public class CommentPrivateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentResponseDto postComment(@Valid @RequestBody CommentPostDto dto,
-                                          @RequestParam("userId") Long userId,
-                                          @RequestParam("eventId") Long eventId,
+    public CommentResponseDto postComment(@RequestBody CommentPostDto dto,
+                                          @Positive @RequestParam(value = "userId") Long userId,
+                                          @Positive @RequestParam(value = "eventId") Long eventId,
                                           HttpServletRequest request) {
         log.info("Добавление нового комментария к событию {} от пользователя {} с текстом {}", eventId, userId, dto.getText());
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
+        Util.checkTextInComment(dto);
         return commentService.postComment(dto, userId, eventId, clientIp, endpoint);
     }
 
     @PatchMapping("/{commentId}/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public CommentResponseDto patchComment(@Validated @RequestBody CommentPatchDto dto,
-                                           @PathVariable("commentId") Long commentId,
-                                           @PathVariable("userId") Long userId,
+                                           @Positive @PathVariable("commentId") Long commentId,
+                                           @Positive @PathVariable("userId") Long userId,
                                            HttpServletRequest request) {
         log.info("Обновление комментария id:{}, {} пользователем id:{}", commentId, dto, userId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
+        Util.checkTextInComment(dto);
         return commentService.patchComment(dto, commentId, userId, clientIp, endpoint);
     }
 

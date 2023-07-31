@@ -2,6 +2,8 @@ package ru.practucum.ems.utils;
 
 
 import ru.practicum.sd.dto.UtilDto;
+import ru.practucum.ems.dto.comments.CommentPatchDto;
+import ru.practucum.ems.dto.comments.CommentPostDto;
 import ru.practucum.ems.model.Event;
 import ru.practucum.ems.model.EventSort;
 import ru.practucum.ems.model.PublicationState;
@@ -48,5 +50,17 @@ public class Util {
                 .findFirst()
                 .orElse(new UtilDto(eventId, 0L));
         return dto.getCount().intValue();
+    }
+
+    public static void checkTextInComment(CommentPostDto dto) {
+        if (dto.getText() == null || dto.getText().isBlank()) {
+            throw new IllegalArgumentException("Не заполнено обязательное поле в дто!");
+        }
+    }
+
+    public static void checkTextInComment(CommentPatchDto dto) {
+        if (dto.getText() == null || dto.getText().isBlank()) {
+            throw new IllegalArgumentException("Не заполнено обязательное поле в дто!");
+        }
     }
 }

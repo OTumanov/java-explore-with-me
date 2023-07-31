@@ -68,6 +68,9 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponseDto postComment(CommentPostDto dto, Long userId, Long eventId, String clientIp, String endpoint) {
         client.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
+        if (userId == -1 || eventId == -1) {
+            throw new IllegalArgumentException("Неверно заполнены данные");
+        }
         User owner = checkUser(userId);
         Event event = checkEvent(eventId);
         Comment comment = CommentMapper.toModel(dto, owner, event);
@@ -79,6 +82,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponseDto patchComment(CommentPatchDto dto, Long commentId, Long userId, String clientIp, String endpoint) {
         client.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
+        if (dto.getText() == null) {
+            throw new IllegalArgumentException("Не заполнено дто!");
+        }
+        checkUser(userId);
         Comment comment = checkComment(commentId);
         checkOwnerComment(dto, userId, comment);
         updateComment(comment, dto);
@@ -97,6 +104,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteComment(Long commentId, Long userId, String clientIp, String endpoint) {
         client.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
+        checkUser(userId);
         Comment comment = checkComment(commentId);
         Long ownerId = comment.getOwner().getId();
         checkOwnerComment(ownerId, userId, comment);

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/comment/admin")
+@RequestMapping("/comments/admin")
 public class CommentAdminController {
 
     private final CommentService commentService;

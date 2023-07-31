@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/comment")
+@RequestMapping(path = "/comments")
 public class CommentPublicController {
 
     private final CommentService commentService;

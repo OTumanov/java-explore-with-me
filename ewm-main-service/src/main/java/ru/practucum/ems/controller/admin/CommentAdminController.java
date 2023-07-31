@@ -17,11 +17,10 @@ public class CommentAdminController {
 
     @DeleteMapping("/{commentId}")
     public void deleteCommentById(@PathVariable Long commentId,
-                                  @RequestParam("userId") Long userId,
                                   HttpServletRequest request) {
-        log.info("Удаление комментария id:{} администратором id:{}", commentId, userId);
+        log.info("Удаление комментария id:{} администратором id:{}", commentId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        commentService.deleteComment(commentId, userId, clientIp, endpoint);
+        commentService.deleteComment(commentId, clientIp, endpoint);
     }
 }

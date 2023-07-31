@@ -66,10 +66,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponseDto postComment(CommentPostDto dto, Long userId, String clientIp, String endpoint) {
+    public CommentResponseDto postComment(CommentPostDto dto, Long userId, Long eventId, String clientIp, String endpoint) {
         client.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
         User owner = checkUser(userId);
-        Event event = checkEvent(dto);
+        Event event = checkEvent(eventId);
         Comment comment = CommentMapper.toModel(dto, owner, event);
         comment = commentRepository.save(comment);
         return mapToCommentResponseDto(comment);
@@ -158,8 +158,8 @@ public class CommentServiceImpl implements CommentService {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
-    private Event checkEvent(CommentPostDto dto) {
-        return eventRepository.findById(dto.getEventId()).orElseThrow(() -> new NotFoundException("Событие не найдено"));
+    private Event checkEvent(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
     }
 
     private void checkOwnerComment(CommentPatchDto dto, Long userId, Comment comment) {

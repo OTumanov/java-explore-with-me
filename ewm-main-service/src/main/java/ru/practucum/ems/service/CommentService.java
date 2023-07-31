@@ -7,7 +7,7 @@ import ru.practucum.ems.dto.comments.CommentResponseDto;
 import java.util.List;
 
 public interface CommentService {
-    CommentResponseDto postComment(CommentPostDto comment, Long userId, String clientIp, String endpoint);
+    CommentResponseDto postComment(CommentPostDto comment, Long userId, Long eventId, String clientIp, String endpoint);
 
     CommentResponseDto patchComment(CommentPatchDto comment, Long userId, String clientIp, String endpoint);
 

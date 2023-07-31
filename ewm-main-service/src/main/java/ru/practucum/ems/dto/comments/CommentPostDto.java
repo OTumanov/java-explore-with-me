@@ -17,7 +17,4 @@ public class CommentPostDto {
     @NotBlank
     @Length(min = 10, max = 2048)
     private String text;
-
-    @NotNull
-    private Long eventId;
 }

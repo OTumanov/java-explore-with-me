@@ -25,11 +25,12 @@ public class CommentPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommentResponseDto postComment(@Valid @RequestBody CommentPostDto dto,
                                           @RequestParam("userId") Long userId,
+                                          @RequestParam("eventId") Long eventId,
                                           HttpServletRequest request) {
-        log.info("Добавление нового комментария:{} пользователем id:{}", dto, userId);
+        log.info("Добавление нового комментария к событию {} от пользователя {} с текстом {}", eventId, userId, dto.getText());
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        return commentService.postComment(dto, userId, clientIp, endpoint);
+        return commentService.postComment(dto, userId, eventId, clientIp, endpoint);
     }
 
     @PatchMapping
@@ -43,10 +44,10 @@ public class CommentPrivateController {
         return commentService.patchComment(dto, userId, clientIp, endpoint);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/{commentId}/user/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long commentId,
-                              @RequestParam("userId") Long userId,
+                              @PathVariable("userId") Long userId,
                               HttpServletRequest request) {
         log.info("Удаление комментария id:{} пользователем id:{}", commentId, userId);
         String clientIp = request.getRemoteAddr();

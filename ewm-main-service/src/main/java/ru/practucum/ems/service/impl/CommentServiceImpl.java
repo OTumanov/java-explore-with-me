@@ -147,11 +147,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private Comment checkComment(CommentPatchDto dto) {
-        return commentRepository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("Коммнетарий не найден"));
+        return commentRepository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
     }
 
     private Comment checkComment(Long id) {
-        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Коммнетарий не найден"));
+        return commentRepository.findById(id).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
     }
 
     private User checkUser(Long id) {

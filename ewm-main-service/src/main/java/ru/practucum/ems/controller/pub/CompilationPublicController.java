@@ -21,13 +21,13 @@ public class CompilationPublicController {
     public List<CompilationDto> findAll(@RequestParam(required = false) Boolean pinned,
                                         @RequestParam(defaultValue = "0") Integer from,
                                         @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получение подборок событий");
+        log.info("Получение всех подборок событий");
         return compilationService.findAll(pinned, from, size);
     }
 
     @GetMapping("/{compId}")
     public CompilationDto findById(@Positive @PathVariable Long compId) {
-        log.info("Получение подборки по его id {}", compId);
+        log.info("Получение подборки событий #{}", compId);
         return compilationService.findById(compId);
     }
 }

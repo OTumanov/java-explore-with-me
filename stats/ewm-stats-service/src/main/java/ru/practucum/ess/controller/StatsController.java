@@ -25,7 +25,7 @@ public class StatsController {
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto createEndpointHit(@RequestBody @Validated EndpointHitDto endpointHitDto) {
-        log.info("StatsController - POST: /hit endpointHitDto={}", endpointHitDto);
+        log.info("StatsController - метод POST: /hit {}", endpointHitDto);
         return statsService.createEndpointHit(endpointHitDto);
     }
 
@@ -35,8 +35,7 @@ public class StatsController {
             @RequestParam @DateTimeFormat(pattern = Constants.DATE_TIME_PATTERN) LocalDateTime end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
-        log.info("StatsController - GET: /stats start={}, end={}, uris={}, unique={}",
-                start, end, uris, unique);
+        log.info("StatsController - метод GET: /stats start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         return statsService.getViewStats(start, end, uris, unique);
     }
 }

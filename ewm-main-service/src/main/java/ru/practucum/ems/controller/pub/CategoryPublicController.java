@@ -19,13 +19,13 @@ public class CategoryPublicController {
     @GetMapping
     public List<CategoryDto> findAll(@RequestParam(defaultValue = "0") Integer from,
                                      @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получение всех категорий");
+        log.info("Запрос всех категорий");
         return categoryService.findAll(from, size);
     }
 
     @GetMapping("/{catId}")
     public CategoryDto findById(@PathVariable Long catId) {
-        log.info("Получение информации о категории по ее идентификатору {}", catId);
+        log.info("Получение информации о категории #{}", catId);
         return categoryService.findById(catId);
     }
 }

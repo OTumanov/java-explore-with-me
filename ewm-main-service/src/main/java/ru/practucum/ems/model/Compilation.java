@@ -10,11 +10,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Builder
+@RequiredArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "compilations")
+@Entity(name = "compilations")
 public class Compilation {
     @Id
     @Column(name = "compilation_id")

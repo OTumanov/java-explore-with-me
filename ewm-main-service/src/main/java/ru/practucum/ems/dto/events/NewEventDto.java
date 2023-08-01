@@ -16,14 +16,14 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class NewEventDto {
     @NotEmpty
-    @Length(min = 20, max = 2000, message = "От 20 до 2000 символов")
+    @Length(min = 20, max = 2000, message = "Аннотация может содержать от 20 до 2000 символов")
     private String annotation;
 
     @NotNull
     private Integer category;
 
     @NotEmpty
-    @Length(min = 20, max = 7000, message = "От 20 до 7000 символов")
+    @Length(min = 20, max = 7000, message = "Описание может содержать от 20 до 7000 символов")
     private String description;
 
     @NotEmpty
@@ -37,6 +37,6 @@ public class NewEventDto {
     private Boolean requestModeration;
 
     @NotEmpty
-    @Length(min = 3, max = 120, message = "От 3 до 120 символов")
+    @Length(min = 3, max = 120, message = "Заголовок может содержать от 3 до 120 символов")
     private String title;
 }

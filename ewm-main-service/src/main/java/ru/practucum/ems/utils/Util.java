@@ -2,6 +2,8 @@ package ru.practucum.ems.utils;
 
 
 import ru.practicum.sd.dto.UtilDto;
+import ru.practucum.ems.dto.comments.CommentPatchDto;
+import ru.practucum.ems.dto.comments.CommentPostDto;
 import ru.practucum.ems.model.Event;
 import ru.practucum.ems.model.EventSort;
 import ru.practucum.ems.model.PublicationState;
@@ -16,8 +18,9 @@ public class Util {
         try {
             sort = EventSort.valueOf(str.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid Sort value: " + str);
+            throw new IllegalArgumentException("Неверный тип сортировки");
         }
+
         return sort;
     }
 
@@ -27,11 +30,14 @@ public class Util {
             PublicationState state = PublicationState.valueOf(name.toUpperCase());
             result.add(state);
         }
+
         return result;
     }
 
     public static List<Long> getEventIdsList(List<Event> events) {
-        return events.stream().map(Event::getId).collect(Collectors.toList());
+        return events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
     }
 
     public static Long matchLongValueByEventId(List<UtilDto> utilDtos, Long eventId) {
@@ -39,6 +45,7 @@ public class Util {
                 .filter(utilDto -> utilDto.getEntityId().equals(eventId))
                 .findFirst()
                 .orElse(new UtilDto(eventId, 0L));
+
         return dto.getCount();
     }
 
@@ -47,6 +54,19 @@ public class Util {
                 .filter(utilDto -> utilDto.getEntityId().equals(eventId))
                 .findFirst()
                 .orElse(new UtilDto(eventId, 0L));
+
         return dto.getCount().intValue();
+    }
+
+    public static void checkTextInComment(CommentPostDto dto) {
+        if (dto.getText() == null || dto.getText().isBlank()) {
+            throw new IllegalArgumentException("Не заполнено обязательное поле в дто!");
+        }
+    }
+
+    public static void checkTextInComment(CommentPatchDto dto) {
+        if (dto.getText() == null || dto.getText().isBlank()) {
+            throw new IllegalArgumentException("Не заполнено обязательное поле в дто!");
+        }
     }
 }

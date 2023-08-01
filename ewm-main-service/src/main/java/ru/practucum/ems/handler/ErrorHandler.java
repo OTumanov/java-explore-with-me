@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -25,7 +26,7 @@ public class ErrorHandler {
     public ApiError handle(IllegalArgumentException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("For the requested operation the conditions are not met.")
+                .reason("Не соблюдены условия для запроса")
                 .status(Status.BAD_REQUEST)
                 .build();
     }
@@ -41,13 +42,24 @@ public class ErrorHandler {
                 .build();
     }
 
+    //    400
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handle(MissingServletRequestParameterException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .reason("Не прошла валидация в классе")
+                .status(Status.BAD_REQUEST)
+                .build();
+    }
+
     //    403
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiError handle(ForbiddenException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("For the requested operation the conditions are not met.")
+                .reason("В запросе отказано")
                 .status(Status.FORBIDDEN)
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
                 .build();
@@ -59,7 +71,7 @@ public class ErrorHandler {
     public ApiError handle(NotFoundException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("The required object was not found.")
+                .reason("Требуемый объект не найден")
                 .status(Status.NOT_FOUND)
                 .build();
     }
@@ -70,7 +82,7 @@ public class ErrorHandler {
     public ApiError handle(DataIntegrityViolationException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("Conflict of data")
+                .reason("Конфликт событий")
                 .status(Status.CONFLICT)
                 .build();
     }
@@ -82,7 +94,7 @@ public class ErrorHandler {
         ex.printStackTrace();
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("Error occurred")
+                .reason("Внутренняя ошибка сервера")
                 .status(Status.INTERNAL_SERVER_ERROR)
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
                 .build();

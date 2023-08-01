@@ -20,6 +20,6 @@ public class NewCompilationDto {
 
     @NotEmpty
     @NotBlank
-    @Length(min = 1, max = 50, message = "Название подборки должно быть от 1 до 50 символов")
+    @Length(min = 1, max = 50, message = "Название подборки может содержать от 1 до 50 символов")
     private String title;
 }

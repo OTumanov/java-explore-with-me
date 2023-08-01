@@ -22,7 +22,7 @@ public class ParticipationPrivateController {
 
     @GetMapping
     public List<ParticipationRequestDto> getInfoAboutAllParticipation(@Positive @PathVariable Long userId) {
-        log.info("Получение информации о заявках текущего пользователя {} на участие в чужих событиях", userId);
+        log.info("Получение заявок пользователя #{} на участие в чужих событиях", userId);
         return participationService.getInfoAboutAllParticipation(userId);
     }
 
@@ -30,13 +30,13 @@ public class ParticipationPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto addParticipationQuery(@Positive @PathVariable Long userId,
                                                          @Positive @RequestParam(required = false) Long eventId) {
-        log.info("Добавление запроса на участие пользователя id:{}, event id:{}", userId, eventId);
+        log.info("Запрос на участие пользователя #{} в событие #{}", userId, eventId);
         return participationService.addParticipationQuery(userId, eventId);
     }
 
     @PatchMapping("/{requestId}/cancel")
     public ParticipationRequestDto cancelParticipation(@PathVariable Long userId, @PathVariable Long requestId) {
-        log.info("Отменить запрос на участие пользователя id:{}, запрос id:{}", userId, requestId);
+        log.info("Отмена запроса #{} на участие от пользователя #{}", requestId, userId);
         return participationService.cancelParticipation(userId, requestId);
     }
 }

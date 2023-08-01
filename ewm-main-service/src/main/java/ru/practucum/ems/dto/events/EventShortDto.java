@@ -1,6 +1,9 @@
 package ru.practucum.ems.dto.events;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practucum.ems.dto.category.CategoryDto;
 import ru.practucum.ems.dto.users.UserShortDto;
 

@@ -75,4 +75,19 @@ public class EventSearchParams {
         this.from = from;
         this.size = size;
     }
+
+    @Override
+    public String toString() {
+        return  "userIds=" + userIds +
+                ", text='" + text + '\'' +
+                ", states=" + states +
+                ", categories=" + categories +
+                ", rangeStart=" + rangeStart +
+                ", rangeEnd=" + rangeEnd +
+                ", paid=" + paid +
+                ", onlyAvailable=" + onlyAvailable +
+                ", from=" + from +
+                ", size=" + size +
+                ", sort=" + sort;
+    }
 }

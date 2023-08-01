@@ -10,7 +10,7 @@ import ru.practucum.ems.dto.events.EventShortDto;
 import ru.practucum.ems.dto.events.NewEventDto;
 import ru.practucum.ems.dto.events.UpdateEventUserRequest;
 import ru.practucum.ems.dto.participation.EventRequestStatusUpdateRequest;
-import ru.practucum.ems.dto.participation.EventRequestStatusUpdateResult;
+import ru.practucum.ems.dto.participation.EventRequestStatusUpdate;
 import ru.practucum.ems.dto.participation.ParticipationRequestDto;
 import ru.practucum.ems.service.EventService;
 
@@ -31,22 +31,21 @@ public class EventPrivateController {
     public List<EventShortDto> findEventsShortInfoByInitiatorId(@Positive @PathVariable Long userId,
                                                                 @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                                 @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получение событий, добавленных текущим пользователем {}", userId);
+        log.info("Получение всех событий пользователя #{}", userId);
         return eventService.findEventsByInitiatorId(userId, from, size);
     }
-
 
     @GetMapping("/{eventId}")
     public EventFullDto findEventsFullInfoByInitiatorId(@Positive @PathVariable Long userId,
                                                         @Positive @PathVariable Long eventId) {
-        log.info("Получение полной информации о событии {}, добавленном текущим пользователем {}", eventId, userId);
+        log.info("Получение информации о событии #{}, созданном пользователем #{}", eventId, userId);
         return eventService.findEventByIdAndOwnerId(userId, eventId);
     }
 
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> getInfoAboutEventParticipation(@Positive @PathVariable Long userId,
                                                                         @Positive @PathVariable Long eventId) {
-        log.info("Получение информации о запросах на участие в событии {} текущего пользователя {}", eventId, userId);
+        log.info("Получение запросов на участие в событии #{} от пользователя #{}", eventId, userId);
         return eventService.getInfoAboutEventParticipation(userId, eventId);
     }
 
@@ -55,7 +54,7 @@ public class EventPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto postEvent(@Positive @PathVariable Long userId,
                                   @Validated @RequestBody NewEventDto dto) {
-        log.info("Добавление нового события {} {}", userId, dto);
+        log.info("Добавление нового события пользователем #{} - \"{}\"", userId, dto.getTitle());
         return eventService.postEvent(userId, dto);
     }
 
@@ -64,17 +63,16 @@ public class EventPrivateController {
     public EventFullDto patchEvent(@Positive @PathVariable Long userId,
                                    @Positive @PathVariable Long eventId,
                                    @Validated @RequestBody UpdateEventUserRequest dto) {
-        log.info("Изменения события {}, добавленного текущим пользователем {} -- {}", eventId, userId, dto);
+        log.info("Изменение события #{}, от пользователя #{} - \"{}\"", eventId, userId, dto.getTitle());
         return eventService.patchEvent(userId, eventId, dto);
     }
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public EventRequestStatusUpdateResult confirmParticipation(@Positive @PathVariable Long userId,
-                                                               @Positive @PathVariable Long eventId,
-                                                               @RequestBody EventRequestStatusUpdateRequest dto) {
-        log.info("Изменение статуса (подтверждение или отмена - {}) " +
-                "заявок на участие в событии {} от текущего пользователя {}", dto, eventId, userId);
+    public EventRequestStatusUpdate confirmParticipation(@Positive @PathVariable Long userId,
+                                                         @Positive @PathVariable Long eventId,
+                                                         @RequestBody EventRequestStatusUpdateRequest dto) {
+        log.info("Изменение статуса на \"{}\" заявки или заявок ##{} на участие в событии #{} от пользователя #{}", dto.getStatus(), dto.getRequestIds(), eventId, userId);
         return eventService.confirmParticipation(userId, eventId, dto);
     }
 }

@@ -18,29 +18,29 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/users")
-public class UserAdminController {
 
+public class UserAdminController {
     private final UserService userService;
 
     @GetMapping
     public List<UserDto> findUsers(@RequestParam(required = false) List<Long> ids,
                                    @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                    @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получение информации о пользователях - {}", ids);
+        log.info("Запрос информации о пользователях - ##{}", ids);
         return userService.findUsers(ids, from, size);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto postUser(@Validated @RequestBody NewUserDto dto) {
-        log.info("Добавление нового пользователя {}", dto);
+        log.info("Добавление нового пользователя - \"{}\", \"{}\"", dto.getName(), dto.getEmail());
         return userService.postUser(dto);
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@Positive @PathVariable Long userId) {
-        log.info("Удаление пользователя {}", userId);
+        log.info("Удаление пользователя #{}", userId);
         userService.deleteUser(userId);
     }
 }

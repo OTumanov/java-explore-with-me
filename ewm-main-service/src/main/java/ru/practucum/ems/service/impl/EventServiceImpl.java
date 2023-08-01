@@ -12,8 +12,8 @@ import ru.practicum.sd.dto.UtilDto;
 import ru.practicum.sd.dto.ViewStatsDto;
 import ru.practicum.ssc.StatsClient;
 import ru.practucum.ems.dto.events.*;
+import ru.practucum.ems.dto.participation.EventRequestStatusUpdate;
 import ru.practucum.ems.dto.participation.EventRequestStatusUpdateRequest;
-import ru.practucum.ems.dto.participation.EventRequestStatusUpdateResult;
 import ru.practucum.ems.dto.participation.ParticipationRequestDto;
 import ru.practucum.ems.exceptions.ForbiddenException;
 import ru.practucum.ems.exceptions.NotFoundException;
@@ -51,10 +51,37 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<EventShortDto> getEvents(EventSearchParams params, String clientIp, String endpoint) {
+    public EventFullDto findEventById(Long id, String clientIp, String endpoint) {
+        Event event = checkEvent(id);
+        statsClient.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
+        setViewsToOneEvent(event);
+        if (!event.getState().equals(PublicationState.PUBLISHED)) {
+            throw new NotFoundException("Событие должно быть опубликовано!");
+        }
+
+        return EventMapper.toEventFullDto(
+                event,
+                participationRepository.getConfirmedRequests(
+                        event.getId(),
+                        ParticipationState.CONFIRMED),
+                event.getViews()
+        );
+    }
+
+    @Override
+    public List<EventShortDto> findEventsByInitiatorId(Long userId, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
+
+        return prepareDataAndGetEventShortDtoList(events);
+    }
+
+    @Override
+    @Transactional
+    public List<EventShortDto> findEvents(EventSearchParams params, String clientIp, String endpoint) {
         if (params.getRangeStart() != null && params.getRangeEnd() != null) {
             if (params.getRangeEnd().isBefore(params.getRangeStart())) {
-                throw new IllegalArgumentException("Время окончания события не может быть перед стартовым!");
+                throw new IllegalArgumentException("Время окончания события не может быть до его начала!");
             }
         }
         Sort sort = Sort.unsorted();
@@ -76,22 +103,64 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional
-    public EventFullDto findEventById(Long id, String clientIp, String endpoint) {
-        Event event = checkEvent(id);
-        statsClient.hitRequest(EventMapper.endpointHitDto(APP_NAME, clientIp, endpoint));
-        setViewsToOneEvent(event);
-        if (!event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new NotFoundException("Событие должно быть опубликовано!");
+    public List<EventFullDto> findEventsByConditions(EventSearchParams params) {
+        Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
+        Specification<Event> specification = getSpecification(params);
+        List<Event> events = eventRepository.findAll(specification, pageable).toList();
+        List<Long> eventIds = getEventIdsList(events);
+        List<UtilDto> confirmedReqEventIdRelations = participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
+        List<UtilDto> viewsEventIdRelations = new ArrayList<>();
+        for (Event event : events) {
+            UtilDto eventDto = UtilDto.builder()
+                    .count(event.getViews())
+                    .entityId(event.getId())
+                    .build();
+            viewsEventIdRelations.add(eventDto);
         }
-        return EventMapper.toEventFullDto(event, participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED), event.getViews());
+
+        return events.stream()
+                .map((Event event) -> EventMapper.toEventFullDto(
+                        event,
+                        matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
+                        matchLongValueByEventId(viewsEventIdRelations, event.getId())))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<EventShortDto> findEventsByInitiatorId(Long userId, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
-        return prepareDataAndGetEventShortDtoList(events);
+    public EventFullDto findEventByIdAndOwnerId(Long userId, Long eventId) {
+        Event event = checkEvent(eventId, userId);
+        Integer confirmedRequests =
+                participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+        Long views = event.getViews();
+
+        return EventMapper.toEventFullDto(event, confirmedRequests, views);
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getInfoAboutEventParticipation(Long userId, Long eventId) {
+        checkEvent(eventId, userId);
+        List<Participation> participations = participationRepository.findAllByEventId(eventId);
+
+        return participations.stream().map(ParticipationMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public EventFullDto postEvent(Long userId, NewEventDto dto) {
+        if (!checkDate(dto.getEventDate())) {
+            throw new IllegalArgumentException("Событие не может наступить ранее двух часов от текущего времени!");
+        }
+        User initiator = checkUser(userId);
+        Category category = checkCategory(Long.valueOf(dto.getCategory()));
+        Event event = EventMapper.toModel(dto, initiator, category);
+        Location location = locationRepository.save(event.getLocation());
+        event.setLocation(location);
+        event = eventRepository.save(event);
+        Integer confirmedRequests =
+                participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+        Long views = event.getViews();
+
+        return EventMapper.toEventFullDto(event, confirmedRequests, views);
     }
 
     @Override
@@ -99,7 +168,9 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest dto) {
         Event event = checkEvent(eventId, userId);
 
-        if (dto.getEventDate() != null && (!dto.getEventDate().isEmpty()) && DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
+        if (dto.getEventDate() != null
+                && (!dto.getEventDate().isEmpty())
+                && DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Невозможно изменить событие находящееся в прошлом!");
         }
 
@@ -116,44 +187,16 @@ public class EventServiceImpl implements EventService {
         }
         updateEvent(event, dto);
         event = eventRepository.save(event);
-        return EventMapper.toEventFullDto(event, participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED), event.getViews());
+        return EventMapper.toEventFullDto(event,
+                participationRepository.getConfirmedRequests(
+                        event.getId(),
+                        ParticipationState.CONFIRMED),
+                event.getViews());
     }
 
     @Override
     @Transactional
-    public EventFullDto postEvent(Long userId, NewEventDto dto) {
-        if (!isEventDateOk(dto.getEventDate())) {
-            throw new IllegalArgumentException("Событие не может наступить ранее двух часов от текущего времени!");
-        }
-        User initiator = checkUser(userId);
-        Category category = checkCategory(Long.valueOf(dto.getCategory()));
-        Event event = EventMapper.toModel(dto, initiator, category);
-        Location location = locationRepository.save(event.getLocation());
-        event.setLocation(location);
-        event = eventRepository.save(event);
-        Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
-        Long views = event.getViews();
-        return EventMapper.toEventFullDto(event, confirmedRequests, views);
-    }
-
-    @Override
-    public EventFullDto findEventByIdAndOwnerId(Long userId, Long eventId) {
-        Event event = checkEvent(eventId, userId);
-        Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
-        Long views = event.getViews();
-        return EventMapper.toEventFullDto(event, confirmedRequests, views);
-    }
-
-    @Override
-    public List<ParticipationRequestDto> getInfoAboutEventParticipation(Long userId, Long eventId) {
-        checkEvent(eventId, userId);
-        List<Participation> participations = participationRepository.findAllByEventId(eventId);
-        return participations.stream().map(ParticipationMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public EventRequestStatusUpdateResult confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateRequest dto) {
+    public EventRequestStatusUpdate confirmParticipation(Long userId, Long eventId, EventRequestStatusUpdateRequest dto) {
         Event event = checkEvent(eventId, userId);
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenException("Это событие не принадлежит данному пользователю!");
@@ -190,30 +233,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> findEventsByConditions(EventSearchParams params) {
-        Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
-        Specification<Event> specification = getSpecification(params);
-        List<Event> events = eventRepository.findAll(specification, pageable).toList();
-        List<Long> eventIds = getEventIdsList(events);
-        List<UtilDto> confirmedReqEventIdRelations = participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
-        List<UtilDto> viewsEventIdRelations = new ArrayList<>();
-        for (Event event : events) {
-            UtilDto eventDto = UtilDto.builder()
-                    .count(event.getViews())
-                    .entityId(event.getId())
-                    .build();
-            viewsEventIdRelations.add(eventDto);
-        }
-
-        return events.stream()
-                .map((Event event) -> EventMapper.toEventFullDto(
-                        event,
-                        matchIntValueByEventId(confirmedReqEventIdRelations, event.getId()),
-                        matchLongValueByEventId(viewsEventIdRelations, event.getId())))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
     public EventFullDto publishEvent(Long eventId, UpdateEventAdminRequest dto, String clientIp, String endpoint) {
         if (dto.getStateAction() == StateAction.PUBLISH_EVENT) {
@@ -230,6 +249,7 @@ public class EventServiceImpl implements EventService {
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = event.getViews();
+
             return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else if (dto.getStateAction() == StateAction.REJECT_EVENT) {
             Event event = checkEvent(eventId);
@@ -240,6 +260,7 @@ public class EventServiceImpl implements EventService {
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = event.getViews();
+
             return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else if (DateTimeMapper.toDateTime(dto.getEventDate()).isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Нельзя указать время и дату из прошлого");
@@ -249,6 +270,7 @@ public class EventServiceImpl implements EventService {
             event = eventRepository.save(event);
             Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
             Long views = event.getViews();
+
             return EventMapper.toEventFullDto(event, confirmedRequests, views);
         } else {
             throw new ForbiddenException("Недопустимые входные данные");
@@ -268,7 +290,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(update.getDescription());
         }
         if (update.getEventDate() != null) {
-            if (!isEventDateOk(update.getEventDate())) {
+            if (!checkDate(update.getEventDate())) {
                 throw new IllegalArgumentException("Событие можно изменить не менее, чем за 2 часа до события");
             }
             event.setEventDate(DateTimeMapper.toDateTime(update.getEventDate()));
@@ -297,7 +319,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(update.getDescription());
         }
         if (update.getEventDate() != null) {
-            if (!isEventDateOk(update.getEventDate())) {
+            if (!checkDate(update.getEventDate())) {
                 throw new IllegalArgumentException("Событие можно изменить не менее, чем за 2 часа до события");
             }
             event.setEventDate(DateTimeMapper.toDateTime(update.getEventDate()));
@@ -367,7 +389,7 @@ public class EventServiceImpl implements EventService {
         return participationRepository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого!"));
     }
 
-    private boolean isEventDateOk(String eventDate) {
+    private boolean checkDate(String eventDate) {
         LocalDateTime date = DateTimeMapper.toDateTime(eventDate);
         return date.isAfter(LocalDateTime.now().plusHours(2));
     }
@@ -422,8 +444,8 @@ public class EventServiceImpl implements EventService {
         String eventsUri = "/events/";
         List<String> uris = idEvents.stream().map(id -> eventsUri + id).collect(Collectors.toList());
         List<ViewStatsDto> viewStatDtos = statsClient.getStats(start, end, uris, true);
-        Map<Long, Long> hits = viewStatDtos.stream().collect(Collectors.toMap(v -> Long.parseLong(v.getUri().substring(eventsUri.length())), ViewStatsDto::getHits));
+        Map<Long, Long> hits = viewStatDtos.stream()
+                .collect(Collectors.toMap(v -> Long.parseLong(v.getUri().substring(eventsUri.length())), ViewStatsDto::getHits));
         events.forEach(e -> e.setViews(hits.get(e.getId())));
     }
-
 }

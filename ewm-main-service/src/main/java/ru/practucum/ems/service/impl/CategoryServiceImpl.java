@@ -23,12 +23,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    @Override
-    public List<CategoryDto> findAll(Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-        List<Category> categories = categoryRepository.findAll(pageable).toList();
-        return categories.stream().map(CategoryMapper::toDto).collect(Collectors.toList());
-    }
 
     @Override
     public CategoryDto findById(Long catId) {
@@ -37,11 +31,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional
-    public CategoryDto patchCategory(CategoryDto dto, Long catId) {
-        Category category = CategoryMapper.toModel(dto);
-        category.setId(catId);
-        return CategoryMapper.toDto(categoryRepository.save(category));
+    public List<CategoryDto> findAll(Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Category> categories = categoryRepository.findAll(pageable).toList();
+        return categories.stream().map(CategoryMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -50,6 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
         Category newCat = CategoryMapper.toModel(dto);
         newCat = categoryRepository.save(newCat);
         return CategoryMapper.toDto(newCat);
+    }
+
+    @Override
+    @Transactional
+    public CategoryDto patchCategory(CategoryDto dto, Long catId) {
+        Category category = CategoryMapper.toModel(dto);
+        category.setId(catId);
+        return CategoryMapper.toDto(categoryRepository.save(category));
     }
 
     @Override

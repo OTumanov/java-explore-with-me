@@ -18,11 +18,11 @@ public class NewUserDto {
 
     @NotEmpty
     @Email
-    @Length(min = 6, max = 254, message = "От 6 до 254 символов на адрес почты")
+    @Length(min = 6, max = 254, message = "Адрес почты может содержать от 6 до 254 символов")
     private String email;
 
     @NotEmpty
     @NotBlank
-    @Length(min = 2, max = 250, message = "От 2 до 250 символов для имени")
+    @Length(min = 2, max = 250, message = "Имя может содержать от 2 до 250 символов")
     private String name;
 }

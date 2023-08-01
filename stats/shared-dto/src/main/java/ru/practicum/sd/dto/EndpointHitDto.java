@@ -27,4 +27,12 @@ public class EndpointHitDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime timestamp;
+
+    @Override
+    public String toString() {
+        return  "app='" + app + '\'' +
+                ", uri='" + uri + '\'' +
+                ", ip='" + ip + '\'' +
+                ", timestamp=" + timestamp;
+    }
 }

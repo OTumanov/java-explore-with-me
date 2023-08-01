@@ -1,6 +1,6 @@
 package ru.practucum.ems.mapper;
 
-import ru.practucum.ems.dto.participation.EventRequestStatusUpdateResult;
+import ru.practucum.ems.dto.participation.EventRequestStatusUpdate;
 import ru.practucum.ems.dto.participation.ParticipationRequestDto;
 import ru.practucum.ems.model.Participation;
 
@@ -18,9 +18,9 @@ public class ParticipationMapper {
                 .build();
     }
 
-    public static EventRequestStatusUpdateResult toEventRequestStatusUpdateResult(
+    public static EventRequestStatusUpdate toEventRequestStatusUpdateResult(
             List<ParticipationRequestDto> confirmedRequests, List<ParticipationRequestDto> rejectedRequests) {
-        return EventRequestStatusUpdateResult.builder()
+        return EventRequestStatusUpdate.builder()
                 .confirmedRequests(confirmedRequests)
                 .rejectedRequests(rejectedRequests)
                 .build();

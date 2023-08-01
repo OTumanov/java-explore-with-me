@@ -14,11 +14,11 @@ import ru.practucum.ems.model.UpdateEventUserState;
 @NoArgsConstructor
 public class UpdateEventUserRequest {
 
-    @Length(min = 20, max = 2000, message = "От 20 до 2000 символов")
+    @Length(min = 20, max = 2000, message = "Аннотация может содержать от 20 до 2000 символов")
     private String annotation;
     private Long category;
 
-    @Length(min = 20, max = 7000, message = "От 20 до 7000 символов")
+    @Length(min = 20, max = 7000, message = "Описание может содержать от 20 до 7000 символов")
     private String description;
     private String eventDate;
     private Location location;
@@ -28,7 +28,7 @@ public class UpdateEventUserRequest {
 
     private UpdateEventUserState stateAction;
 
-    @Length(min = 3, max = 120, message = "От 3 до 120 символов")
+    @Length(min = 3, max = 120, message = "Заголовок может содержать от З 3 до 120 символов")
     private String title;
 
 }

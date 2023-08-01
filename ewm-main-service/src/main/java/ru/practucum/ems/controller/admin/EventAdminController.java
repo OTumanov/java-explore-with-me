@@ -31,16 +31,8 @@ public class EventAdminController {
                                                      @RequestParam(required = false) String rangeEnd,
                                                      @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                      @Positive @RequestParam(defaultValue = "10") Integer size) {
-        EventSearchParams searchParams = new EventSearchParams(
-                users,
-                states,
-                categories,
-                rangeStart,
-                rangeEnd,
-                from,
-                size
-        );
-        log.info("Поиск событий - {}", searchParams);
+        EventSearchParams searchParams = new EventSearchParams(users, states, categories, rangeStart, rangeEnd, from, size);
+        log.info("Поиск событий - \"{}\"", searchParams.toString().substring(0, 100) + "...");
         return eventService.findEventsByConditions(searchParams);
     }
 
@@ -50,7 +42,7 @@ public class EventAdminController {
                                      HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        log.info("Редактирование данных события {} и его статуса (отклонение/публикация) - {}", eventId, dto);
+        log.info("Редактирование данных события #{} и его статуса (отклонение/публикация) - \"{}\"", eventId, dto.getStateAction());
         return eventService.publishEvent(eventId, dto, clientIp, endpoint);
     }
 }

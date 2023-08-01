@@ -25,13 +25,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> findUsers(List<Long> ids, Integer from, Integer size) {
         List<User> users;
-
         if (ids != null) {
             users = userRepository.findAllById(ids);
         } else {
             Pageable pageable = PageRequest.of(from / size, size);
             users = userRepository.findAll(pageable).toList();
         }
+
         return users.stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
     public UserDto postUser(NewUserDto dto) {
         User user = UserMapper.toModel(dto);
         user = userRepository.save(user);
+
         return UserMapper.toUserDto(user);
     }
 

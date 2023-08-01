@@ -37,7 +37,7 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Transactional
     public ParticipationRequestDto addParticipationQuery(Long userId, Long eventId) {
         if (eventId == null) {
-            throw new IllegalArgumentException("ID не заполнен!");
+            throw new IllegalArgumentException("id не заполнен!");
         }
         User user = checkUser(userId);
         Event event = checkEvent(eventId);
@@ -46,14 +46,14 @@ public class ParticipationServiceImpl implements ParticipationService {
             throw new DataIntegrityViolationException("Пользователь уже принял участие в событии");
         }
         if (!event.getState().equals(PublicationState.PUBLISHED)) {
-            throw new DataIntegrityViolationException("Нельзя принять участие в событии, которое еще не опубликовано");
+            throw new DataIntegrityViolationException("Нельзя принять участие в неопубликованном событии");
         }
         if (event.getInitiator().getId().equals(userId)) {
-            throw new DataIntegrityViolationException("Пользователь с этим id не может участвовать в событии");
+            throw new DataIntegrityViolationException("Этот пользователь не может участвовать в событии");
         }
         int confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         if (event.getParticipantLimit() != 0 && confirmedRequests >= event.getParticipantLimit()) {
-            throw new DataIntegrityViolationException("Нельзя принять участие в событии, которое превышает лимит участников");
+            throw new DataIntegrityViolationException("Нельзя принять участие в событии - достигнут лимит участников");
         }
         Participation newParticipation = Participation.builder()
                 .created(LocalDateTime.now())
@@ -75,6 +75,7 @@ public class ParticipationServiceImpl implements ParticipationService {
     public ParticipationRequestDto cancelParticipation(Long requesterId, Long requestId) {
         Participation participation = checkEvent(requesterId, requestId);
         participation.setState(ParticipationState.CANCELED);
+
         return ParticipationMapper.toDto(participation);
     }
 
@@ -87,6 +88,7 @@ public class ParticipationServiceImpl implements ParticipationService {
     }
 
     private Participation checkEvent(Long requesterId, Long requestId) {
-        return participationRepository.findByRequesterIdAndId(requesterId, requestId).orElseThrow(() -> new NotFoundException("Не найден запрос на участие от этого пользователя в данном событии"));
+        return participationRepository.findByRequesterIdAndId(requesterId, requestId)
+                .orElseThrow(() -> new NotFoundException("Не найден запрос на участие от пользователя в этом событии"));
     }
 }

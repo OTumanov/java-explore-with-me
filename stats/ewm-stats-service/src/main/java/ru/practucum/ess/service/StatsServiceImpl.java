@@ -42,5 +42,4 @@ public class StatsServiceImpl implements StatsService {
             return ViewStatMapper.toDto(statsRepository.findViewStats(uris, start, end));
         }
     }
-
 }

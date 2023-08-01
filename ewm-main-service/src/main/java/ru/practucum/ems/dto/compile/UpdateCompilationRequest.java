@@ -17,6 +17,6 @@ public class UpdateCompilationRequest {
     private List<Integer> events;
     private boolean pinned;
 
-    @Length(min = 1, max = 50, message = "Заголовок подборки должен быть от 1 до 50 символов")
+    @Length(min = 1, max = 50, message = "Заголовок подборки может содержать от 1 до 50 символов")
     private String title;
 }

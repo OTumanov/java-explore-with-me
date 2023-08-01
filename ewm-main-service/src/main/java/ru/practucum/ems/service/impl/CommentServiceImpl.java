@@ -58,11 +58,7 @@ public class CommentServiceImpl implements CommentService {
         return mapToCommentResponseDtoList(comments);
     }
 
-    private void updateComment(Comment comment, CommentPatchDto dto) {
-        if (dto.getText() != null && !dto.getText().isBlank()) {
-            comment.setText(dto.getText());
-        }
-    }
+
 
     @Override
     @Transactional
@@ -76,6 +72,12 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = CommentMapper.toModel(dto, owner, event);
         comment = commentRepository.save(comment);
         return mapToCommentResponseDto(comment);
+    }
+
+    private void updateComment(Comment comment, CommentPatchDto dto) {
+        if (dto.getText() != null && !dto.getText().isBlank()) {
+            comment.setText(dto.getText());
+        }
     }
 
     @Override
@@ -115,7 +117,8 @@ public class CommentServiceImpl implements CommentService {
         UserShortDto ownerDto = UserMapper.toUserShortDto(comment.getOwner());
         Event event = comment.getEvent();
         Long views = event.getViews();
-        Integer confirmedRequests = participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
+        Integer confirmedRequests =
+                participationRepository.getConfirmedRequests(event.getId(), ParticipationState.CONFIRMED);
         EventShortDto eventDto = EventMapper.toEventShortDto(event, confirmedRequests, views);
         return CommentMapper.toResponseDto(comment, ownerDto, eventDto);
     }
@@ -136,7 +139,8 @@ public class CommentServiceImpl implements CommentService {
 
     private List<EventShortDto> prepareDataAndGetEventShortDtoList(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<UtilDto> confirmedReqEventIdRelations = participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
+        List<UtilDto> confirmedReqEventIdRelations =
+                participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
         List<UtilDto> viewsEventIdRelations = new ArrayList<>();
         for (Event event : events) {
             UtilDto eventDto = UtilDto.builder()

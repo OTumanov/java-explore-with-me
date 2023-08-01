@@ -7,14 +7,15 @@ import ru.practucum.ems.dto.compile.UpdateCompilationRequest;
 import java.util.List;
 
 public interface CompilationService {
-    List<CompilationDto> findAll(Boolean pinned, Integer from, Integer size);
-
     CompilationDto findById(Long compId);
+
+    List<CompilationDto> findAll(Boolean pinned, Integer from, Integer size);
 
     CompilationDto addNewCompilation(NewCompilationDto dto);
 
+    CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto);
+
     void deleteCompilation(Long compId);
 
-    CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto);
 
 }

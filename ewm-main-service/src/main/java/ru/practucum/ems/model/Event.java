@@ -10,11 +10,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Builder
+@RequiredArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "events")
+@Entity(name = "events")
 public class Event {
 
     @Id
@@ -42,7 +41,7 @@ public class Event {
     @JoinColumn(name = "initiator_id")
     private User initiator;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
 
@@ -85,6 +84,4 @@ public class Event {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-
-
 }

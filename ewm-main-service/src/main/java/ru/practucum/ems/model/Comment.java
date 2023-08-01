@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +28,7 @@ public class Comment {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
     @Transient

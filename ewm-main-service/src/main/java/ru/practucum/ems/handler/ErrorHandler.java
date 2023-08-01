@@ -26,7 +26,7 @@ public class ErrorHandler {
     public ApiError handle(IllegalArgumentException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("For the requested operation the conditions are not met.")
+                .reason("Не соблюдены условия для запроса")
                 .status(Status.BAD_REQUEST)
                 .build();
     }
@@ -59,7 +59,7 @@ public class ErrorHandler {
     public ApiError handle(ForbiddenException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("For the requested operation the conditions are not met.")
+                .reason("В запросе отказано")
                 .status(Status.FORBIDDEN)
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
                 .build();
@@ -71,7 +71,7 @@ public class ErrorHandler {
     public ApiError handle(NotFoundException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("The required object was not found.")
+                .reason("Требуемый объект не найден")
                 .status(Status.NOT_FOUND)
                 .build();
     }
@@ -82,7 +82,7 @@ public class ErrorHandler {
     public ApiError handle(DataIntegrityViolationException ex) {
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("Conflict of data")
+                .reason("Конфликт событий")
                 .status(Status.CONFLICT)
                 .build();
     }
@@ -94,7 +94,7 @@ public class ErrorHandler {
         ex.printStackTrace();
         return ApiError.builder()
                 .message(ex.getMessage())
-                .reason("Error occurred")
+                .reason("Внутренняя ошибка сервера")
                 .status(Status.INTERNAL_SERVER_ERROR)
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
                 .build();

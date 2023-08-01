@@ -33,29 +33,16 @@ public class EventPublicController {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         log.info("Получение событий с возможностью фильтрации");
+        EventSearchParams criteria = new EventSearchParams(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        EventSearchParams criteria = new EventSearchParams(
-                text,
-                categories,
-                paid,
-                rangeStart,
-                rangeEnd,
-                onlyAvailable,
-                sort,
-                from,
-                size
-        );
-
-        return eventService.getEvents(criteria, clientIp, endpoint);
+        return eventService.findEvents(criteria, clientIp, endpoint);
     }
 
     @GetMapping("/{id}")
     public EventFullDto findEventById(@PathVariable Long id, HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
-        log.info("ru.practucum.ems.client ip: {}", clientIp);
-        log.info("endpoint path: {}", endpoint);
-        log.info("Получение подробной информации об опубликованном событии по его идентификатору {}", id);
+        log.info("Получение информации об опубликованном событии #{}", id);
 
         return eventService.findEventById(id, clientIp, endpoint);
     }

@@ -18,8 +18,9 @@ public class Util {
         try {
             sort = EventSort.valueOf(str.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid Sort value: " + str);
+            throw new IllegalArgumentException("Неверный тип сортировки");
         }
+
         return sort;
     }
 
@@ -29,11 +30,14 @@ public class Util {
             PublicationState state = PublicationState.valueOf(name.toUpperCase());
             result.add(state);
         }
+
         return result;
     }
 
     public static List<Long> getEventIdsList(List<Event> events) {
-        return events.stream().map(Event::getId).collect(Collectors.toList());
+        return events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
     }
 
     public static Long matchLongValueByEventId(List<UtilDto> utilDtos, Long eventId) {
@@ -41,6 +45,7 @@ public class Util {
                 .filter(utilDto -> utilDto.getEntityId().equals(eventId))
                 .findFirst()
                 .orElse(new UtilDto(eventId, 0L));
+
         return dto.getCount();
     }
 
@@ -49,6 +54,7 @@ public class Util {
                 .filter(utilDto -> utilDto.getEntityId().equals(eventId))
                 .findFirst()
                 .orElse(new UtilDto(eventId, 0L));
+
         return dto.getCount().intValue();
     }
 

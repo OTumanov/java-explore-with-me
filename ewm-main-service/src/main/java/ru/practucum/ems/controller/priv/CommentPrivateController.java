@@ -28,7 +28,9 @@ public class CommentPrivateController {
                                           @Positive @RequestParam(value = "userId") Long userId,
                                           @Positive @RequestParam(value = "eventId") Long eventId,
                                           HttpServletRequest request) {
-        log.info("Добавление нового комментария к событию {} от пользователя {} с текстом {}", eventId, userId, dto.getText());
+
+        log.info("Добавление нового комментария - \"{}\" к событию #{} от пользователя #{}",
+                (dto.getText() != null) ? dto.getText().substring(0, 50) + "..." : null, eventId, userId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         Util.checkTextInComment(dto);
@@ -41,7 +43,9 @@ public class CommentPrivateController {
                                            @Positive @PathVariable("commentId") Long commentId,
                                            @Positive @PathVariable("userId") Long userId,
                                            HttpServletRequest request) {
-        log.info("Обновление комментария id:{}, {} пользователем id:{}", commentId, dto, userId);
+
+        log.info("Обновление комментария #{} на - \"{}\" пользователем #{}", commentId,
+                (dto.getText() != null) ? dto.getText().substring(0, 50) + "..." : null, userId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         Util.checkTextInComment(dto);
@@ -53,7 +57,7 @@ public class CommentPrivateController {
     public void deleteComment(@PathVariable Long commentId,
                               @PathVariable("userId") Long userId,
                               HttpServletRequest request) {
-        log.info("Удаление комментария id:{} пользователем id:{}", commentId, userId);
+        log.info("Удаление комментария #{} пользователем #{}", commentId, userId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         commentService.deleteComment(commentId, userId, clientIp, endpoint);

@@ -1,18 +1,17 @@
 package ru.practucum.ems.mapper;
 
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practucum.ems.dto.comments.CommentPostDto;
 import ru.practucum.ems.dto.comments.CommentResponseDto;
 import ru.practucum.ems.dto.events.EventShortDto;
+import ru.practucum.ems.dto.users.UserShortDto;
 import ru.practucum.ems.model.Comment;
 import ru.practucum.ems.model.Event;
 import ru.practucum.ems.model.User;
-import ru.practucum.ems.dto.users.UserShortDto;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public final class CommentMapper {
     public static Comment toModel(CommentPostDto dto, User owner, Event event) {
         return Comment.builder()

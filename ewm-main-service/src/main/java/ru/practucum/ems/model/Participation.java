@@ -10,11 +10,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Builder
+@RequiredArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "participations")
+@Entity(name = "participations")
 public class Participation {
     @Id
     @Column(name = "participation_id")
@@ -25,12 +24,12 @@ public class Participation {
     private LocalDateTime created;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
-
-    @ManyToOne(optional = false)
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)

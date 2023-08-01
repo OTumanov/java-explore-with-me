@@ -10,10 +10,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Builder
-@Entity
+@RequiredArgsConstructor
 @AllArgsConstructor
+@Entity
 public class ViewStat {
     @Id
     private String uri;

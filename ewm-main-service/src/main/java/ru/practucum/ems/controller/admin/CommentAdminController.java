@@ -20,7 +20,7 @@ public class CommentAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCommentById(@PathVariable Long commentId,
                                   HttpServletRequest request) {
-        log.info("Удаление комментария {} администратором", commentId);
+        log.info("Удаление комментария #{} администратором", commentId);
         String clientIp = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         commentService.deleteComment(commentId, clientIp, endpoint);

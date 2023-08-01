@@ -9,11 +9,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Builder
+@RequiredArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "categories")
+@Entity(name = "categories")
 public class Category {
 
     @Id

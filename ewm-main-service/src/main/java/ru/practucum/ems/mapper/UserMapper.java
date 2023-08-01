@@ -7,7 +7,6 @@ import ru.practucum.ems.dto.users.UserShortDto;
 import ru.practucum.ems.model.User;
 
 public class UserMapper {
-
     public static User toModel(NewUserDto dto) {
         return User.builder()
                 .id(null)

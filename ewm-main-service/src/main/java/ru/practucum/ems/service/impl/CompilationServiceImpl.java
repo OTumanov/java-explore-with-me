@@ -41,7 +41,6 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto findById(Long compId) {
         Compilation compilation = checkCompilation(compId);
-
         List<EventShortDto> eventShortDtoList = getEventShortDtos(compilation);
         return CompilationMapper.toResponseDto(compilation, eventShortDtoList);
     }
@@ -50,13 +49,11 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDto> findAll(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Compilation> compilations;
-
         if (pinned != null) {
             compilations = compilationRepository.findAllByPinned(pinned, pageable);
         } else {
             compilations = compilationRepository.findAll(pageable).toList();
         }
-
         return compilations
                 .stream()
                 .map((Compilation compilation) -> CompilationMapper.toResponseDto(
@@ -68,16 +65,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     @Override
     public CompilationDto addNewCompilation(NewCompilationDto dto) {
-
         if (dto.getEvents() == null || dto.getEvents().isEmpty()) {
             Compilation compilation = CompilationMapper.toModel(dto);
             compilation = compilationRepository.save(compilation);
 
             return CompilationMapper.toResponseDto(compilation);
         }
-
         List<Event> events = new ArrayList<>();
-
         for (Integer eventId : dto.getEvents()) {
             events.add(checkEvent(Long.valueOf(eventId)));
         }
@@ -92,15 +86,12 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
         Compilation compilation = checkCompilation(compId);
-
         List<Event> events = new ArrayList<>();
-
         if (dto.getEvents() != null) {
             for (Integer eventId : dto.getEvents()) {
                 events.add(checkEvent(Long.valueOf(eventId)));
             }
         }
-
         compilation.setEvents(events);
         compilation.setPinned(Objects.requireNonNullElse(dto.isPinned(), compilation.getPinned()));
         compilation.setTitle(Objects.requireNonNullElse(dto.getTitle(), compilation.getTitle()));
@@ -121,11 +112,9 @@ public class CompilationServiceImpl implements CompilationService {
 
     private List<EventShortDto> getEventShortDtoList(List<Event> events) {
         List<Long> eventIds = getEventIdsList(events);
-        List<UtilDto> confirmedReqEventIdRelations = participationRepository
-                .countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
-
+        List<UtilDto> confirmedReqEventIdRelations =
+                participationRepository.countParticipationByEventIds(eventIds, ParticipationState.CONFIRMED);
         List<UtilDto> viewsEventIdRelations = new ArrayList<>();
-
         for (Event event : events) {
             UtilDto eventDto = UtilDto.builder()
                     .count(event.getViews())

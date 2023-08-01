@@ -14,6 +14,6 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class CommentPostDto {
     @NotBlank
-    @Length(min = 10, max = 2048)
+    @Length(min = 10, max = 2048, message = "Длина комментария должна быть не менее 10 символов и не должна превышать 2048 символов")
     private String text;
 }

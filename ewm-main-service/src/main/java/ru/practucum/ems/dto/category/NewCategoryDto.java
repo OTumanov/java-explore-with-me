@@ -15,6 +15,6 @@ import javax.validation.constraints.NotBlank;
 public class NewCategoryDto {
 
     @NotBlank
-    @Length(min = 1, max = 50, message = "От 1 до 50 символов")
+    @Length(min = 1, max = 50, message = "Название категории может быть от 1 до 50 символов")
     private String name;
 }
